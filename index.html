@@ -25,17 +25,17 @@
             cursor: pointer;
         }
 
-        /* --- BACKGROUND --- */
+        /* --- BACKGROUND (Layer 1) --- */
         #stadium-canvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1;
+            z-index: 1; /* Bottom layer */
         }
 
-        /* --- SMOKE OVERLAY --- */
+        /* --- SMOKE OVERLAY (Layer 100) --- */
         #smoke-overlay {
             position: fixed;
             top: 50%;
@@ -59,35 +59,38 @@
             100% { transform: translate(-50%, -50%) scale(300); opacity: 0; }
         }
 
-        /* --- STAGE 1: LOGO --- */
+        /* --- STAGE 1: LOGO (Layer 50 - Top) --- */
         .center-stage {
             position: relative;
-            z-index: 10;
+            z-index: 50; /* FORCED TO TOP */
             text-align: center;
             transition: opacity 1s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .logo-container {
             width: 300px;
             height: 300px;
-            background: rgba(0, 18, 66, 0.9);
+            background: rgba(0, 18, 66, 0.9); /* Dark blue backup */
             border: 5px solid var(--csk-yellow);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             box-shadow: 0 0 100px rgba(255, 203, 5, 0.2);
-            margin: 0 auto 20px auto;
+            margin-bottom: 20px;
             position: relative;
             overflow: hidden;
             animation: floatGlow 4s ease-in-out infinite;
         }
         .logo-container img { width: 85%; height: 85%; object-fit: contain; }
         
-        h1 { font-size: 3.5rem; color: white; text-transform: uppercase; letter-spacing: 2px; animation: pulseText 1.5s infinite alternate; }
-        .tagline { font-size: 1.5rem; color: var(--csk-yellow); letter-spacing: 5px; font-weight: bold; }
+        h1 { font-size: 3.5rem; color: white; text-transform: uppercase; letter-spacing: 2px; animation: pulseText 1.5s infinite alternate; text-shadow: 2px 2px 0 #000; }
+        .tagline { font-size: 1.5rem; color: var(--csk-yellow); letter-spacing: 5px; font-weight: bold; text-shadow: 1px 1px 0 #000; }
 
-        /* --- STAGE 2: PLAYER CARDS --- */
+        /* --- STAGE 2: PLAYER CARDS (Layer 40) --- */
         #card-stage {
             position: absolute;
             top: 50%;
@@ -95,8 +98,8 @@
             transform: translate(-50%, -50%);
             width: 100%;
             height: 100%;
-            z-index: 15;
-            display: none; /* Hidden initially */
+            z-index: 40;
+            display: none;
             perspective: 1000px;
         }
 
@@ -114,21 +117,13 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 0 30px rgba(255, 203, 5, 0.4);
-            /* Start off screen left */
             transform: translate(-50%, -50%) translateX(-150vw); 
             transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
             overflow: hidden;
         }
 
-        .player-card.active {
-            /* Move to center */
-            transform: translate(-50%, -50%) translateX(0); 
-        }
-
-        .player-card.exit {
-            /* Move off screen right */
-            transform: translate(-50%, -50%) translateX(150vw); 
-        }
+        .player-card.active { transform: translate(-50%, -50%) translateX(0); }
+        .player-card.exit { transform: translate(-50%, -50%) translateX(150vw); }
 
         .player-img {
             width: 200px;
@@ -136,44 +131,21 @@
             object-fit: cover;
             border-bottom: 2px solid var(--csk-yellow);
             margin-bottom: 15px;
+            background: #222; /* Placeholder color */
         }
 
-        .player-role {
-            color: var(--csk-yellow);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 5px;
-        }
+        .player-role { color: var(--csk-yellow); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+        .player-name { font-size: 1.8rem; text-align: center; color: white; text-transform: uppercase; line-height: 1.1; }
+        .impact-badge { position: absolute; top: 10px; right: 10px; background: var(--csk-yellow); color: var(--csk-blue); padding: 5px 10px; font-size: 0.8rem; font-weight: bold; border-radius: 5px; }
 
-        .player-name {
-            font-size: 1.8rem;
-            text-align: center;
-            color: white;
-            text-transform: uppercase;
-            line-height: 1.1;
-        }
-
-        .impact-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--csk-yellow);
-            color: var(--csk-blue);
-            padding: 5px 10px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            border-radius: 5px;
-        }
-
-        /* --- STAGE 3: VIDEO --- */
+        /* --- STAGE 3: VIDEO (Layer 30) --- */
         #video-stage {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             display: none;
-            z-index: 20;
+            z-index: 30;
             width: 100%;
             height: 100%;
             pointer-events: none;
@@ -198,26 +170,9 @@
         }
 
         video { width: 100%; height: 100%; object-fit: cover; }
+        .sound-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 30; background: rgba(0,0,0,0.5); border-radius: 50%; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; font-size: 40px; pointer-events: none; transition: opacity 0.5s; }
+        .video-error-msg { color: red; font-size: 1.5rem; text-align: center; display: none; padding: 20px; background: rgba(0,0,0,0.8); border-radius: 10px; z-index: 31; }
 
-        .sound-overlay {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 30;
-            background: rgba(0,0,0,0.5);
-            border-radius: 50%;
-            width: 80px; height: 80px;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 40px; pointer-events: none;
-            transition: opacity 0.5s;
-        }
-
-        .video-error-msg {
-            color: red; font-size: 1.5rem; text-align: center; display: none;
-            padding: 20px; background: rgba(0,0,0,0.8); border-radius: 10px; z-index: 31;
-        }
-
-        /* --- ANIMATIONS --- */
         @keyframes floatGlow { 0%, 100% { transform: translateY(0); box-shadow: 0 0 50px rgba(255, 203, 5, 0.2); } 50% { transform: translateY(-10px); box-shadow: 0 0 80px rgba(255, 203, 5, 0.5); } }
         @keyframes pulseText { from { transform: scale(1); text-shadow: 0 0 10px white; } to { transform: scale(1.05); text-shadow: 0 0 30px var(--csk-yellow); } }
 
@@ -226,18 +181,21 @@
             .player-img { width: 160px; height: 200px; }
             .player-name { font-size: 1.4rem; }
             .video-wrapper { width: 90vmin; height: 90vmin; }
+            .logo-container { width: 220px; height: 220px; }
+            h1 { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
 
+    <!-- LAYERS -->
     <canvas id="stadium-canvas"></canvas>
     <div id="smoke-overlay"></div>
 
     <!-- STAGE 1: LOGO -->
     <div class="center-stage" id="logo-stage">
         <div class="logo-container">
-            <img src="csk_custom.png" alt="CSK Logo">
+            <img src="csk_custom.png" alt="CSK Logo" onerror="this.style.display='none'">
         </div>
         <h1>CHENNAI<br>SUPER KINGS</h1>
         <div class="tagline">WHISTLE PODU!</div>
@@ -245,7 +203,6 @@
 
     <!-- STAGE 2: CARDS -->
     <div id="card-stage">
-        <!-- Card content injected by JS -->
         <div class="player-card" id="active-card">
             <div class="player-role" id="card-role">ROLE</div>
             <img src="" alt="Player" class="player-img" id="card-img">
@@ -266,11 +223,10 @@
 
     <script>
         // --- CONFIGURATION ---
-        const CARD_DISPLAY_TIME = 1800; // Time each card is visible (ms)
-        const TRANSITION_DELAY = 5000; // Time before smoke starts
+        const CARD_DISPLAY_TIME = 1800; 
+        const TRANSITION_DELAY = 4000; // Reduced to 4s for faster testing
 
         // --- PLAYER DATA ---
-        // Make sure you have files named player1.png ... player11.png and impact1.png, impact2.png
         const players = [
             { name: "Sanju Samson", role: "🧤 WK", img: "player1.png" },
             { name: "Ayush Mhatre", role: "Batter", img: "player2.png" },
@@ -290,7 +246,7 @@
             { name: "Urvil Patel", role: "IMPACT SUB", img: "impact2.png" }
         ];
 
-        // --- BACKGROUND ANIMATION (Canvas) ---
+        // --- BACKGROUND ANIMATION ---
         const canvas = document.getElementById('stadium-canvas');
         const ctx = canvas.getContext('2d');
         let width, height, spectators = [], confetti = [], time = 0;
@@ -349,7 +305,6 @@
             const isVideo = document.getElementById('video-stage').style.display === 'block';
             ctx.fillStyle = isVideo ? 'rgba(0,0,0,0.8)' : '#000000';
             ctx.fillRect(0, 0, width, height);
-
             time++;
             spectators.forEach(s => { s.update(time); s.draw(); });
             if (confetti.length < 100) confetti.push(new Confetti());
@@ -358,73 +313,64 @@
         }
 
         // --- SEQUENCE LOGIC ---
+        
+        function showNextCard(list, index, isImpact) {
+            if(index >= list.length) {
+                if(isImpact) {
+                    startVideoSequence(); // All done
+                } else {
+                    // Finished Main XI, start Impact
+                    showNextCard(impactPlayers, 0, true);
+                }
+                return;
+            }
 
-        // Helper to wait
-        const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-        async function startCardSequence() {
-            const logoStage = document.getElementById('logo-stage');
-            const cardStage = document.getElementById('card-stage');
+            const player = list[index];
             const card = document.getElementById('active-card');
             
-            // Hide Logo, Show Card Stage
+            // 1. Reset Position
+            card.className = 'player-card'; 
+            
+            // 2. Update Data
+            document.getElementById('card-name').innerText = player.name;
+            document.getElementById('card-role').innerText = player.role;
+            document.getElementById('card-img').src = player.img;
+            
+            let badge = card.querySelector('.impact-badge');
+            if(isImpact) {
+                if(!badge) { badge = document.createElement('div'); badge.className = 'impact-badge'; badge.innerText = 'IMPACT PLAYER'; card.appendChild(badge); }
+                badge.style.display = 'block';
+            } else {
+                if(badge) badge.style.display = 'none';
+            }
+
+            // 3. Trigger Reflow (Animation Reset)
+            void card.offsetWidth;
+
+            // 4. Slide In
+            card.classList.add('active');
+
+            // 5. Wait, then Slide Out
+            setTimeout(() => {
+                card.classList.remove('active');
+                card.classList.add('exit');
+                
+                // 6. Wait for exit, then Next
+                setTimeout(() => {
+                    showNextCard(list, index + 1, isImpact);
+                }, 600); // Exit duration
+
+            }, CARD_DISPLAY_TIME);
+        }
+
+        function startCardSequence() {
+            const logoStage = document.getElementById('logo-stage');
+            const cardStage = document.getElementById('card-stage');
+
             logoStage.style.display = 'none';
             cardStage.style.display = 'block';
 
-            // Function to show a single card
-            const showCard = async (player, isImpact = false) => {
-                // Reset card position (left)
-                card.className = 'player-card'; 
-                card.style.transform = 'translate(-50%, -50%) translateX(-150vw)';
-                
-                // Update Content
-                document.getElementById('card-name').innerText = player.name;
-                document.getElementById('card-role').innerText = player.role;
-                document.getElementById('card-img').src = player.img;
-                
-                // Add Impact Badge if needed
-                let badge = card.querySelector('.impact-badge');
-                if(isImpact) {
-                    if(!badge) {
-                        badge = document.createElement('div');
-                        badge.className = 'impact-badge';
-                        badge.innerText = 'IMPACT PLAYER';
-                        card.appendChild(badge);
-                    }
-                    badge.style.display = 'block';
-                } else {
-                    if(badge) badge.style.display = 'none';
-                }
-
-                // Wait a tiny bit for DOM update
-                await wait(50);
-
-                // Slide In
-                card.classList.add('active');
-
-                // Wait while visible
-                await wait(CARD_DISPLAY_TIME);
-
-                // Slide Out
-                card.classList.remove('active');
-                card.classList.add('exit');
-
-                // Wait for exit animation
-                await wait(600);
-            };
-
-            // 1. Show Main XI
-            for (let p of players) {
-                await showCard(p);
-            }
-
-            // 2. Show Impact Players
-            for (let ip of impactPlayers) {
-                await showCard(ip, true);
-            }
-
-            // 3. Start Video
-            startVideoSequence();
+            showNextCard(players, 0, false);
         }
 
         function startVideoSequence() {
@@ -433,62 +379,49 @@
             const video = document.getElementById('main-video');
             const smoke = document.getElementById('smoke-overlay');
 
-            // Smoke Transition effect again
+            // Smoke
             smoke.classList.remove('smoke-explode');
-            void smoke.offsetWidth; // trigger reflow
+            void smoke.offsetWidth; 
             smoke.classList.add('smoke-explode');
 
             setTimeout(() => {
                 cardStage.style.display = 'none';
                 videoStage.style.display = 'block';
-                
-                // Play Video
                 video.muted = true; 
-                video.play().then(() => {
-                    console.log("Video started");
-                }).catch(e => console.log("Video play blocked"));
+                video.play().catch(e => console.log("Autoplay blocked"));
             }, 1000);
 
-            setTimeout(() => {
-                smoke.style.opacity = '0';
-            }, 1900);
+            setTimeout(() => { smoke.style.opacity = '0'; }, 1900);
         }
 
-        // --- INITIALIZATION ---
+        // --- INIT ---
         window.onload = () => {
             resize();
             animate();
 
-            // 1. Start Logo -> Smoke
+            // Start Timer
             setTimeout(() => {
                 const smoke = document.getElementById('smoke-overlay');
                 smoke.classList.add('smoke-explode');
 
-                // 2. After smoke covers screen, switch to Cards
                 setTimeout(() => {
                     startCardSequence();
-                }, 1000); // Halfway through smoke
+                }, 1000);
 
             }, TRANSITION_DELAY);
 
-            // CLICK HANDLER (Unmute Video)
+            // Audio Fix
             document.body.addEventListener('click', () => {
                 const video = document.getElementById('main-video');
                 const soundIcon = document.getElementById('sound-icon');
-                
-                if(video.paused && document.getElementById('video-stage').style.display === 'block') {
-                    video.play();
-                }
-
+                if(video.paused && document.getElementById('video-stage').style.display === 'block') { video.play(); }
                 if (video.muted) {
                     video.muted = false;
                     soundIcon.innerHTML = '🔊';
                     soundIcon.style.opacity = '0';
-                    setTimeout(() => soundIcon.style.display = 'none', 500);
                 } else {
                     video.muted = true;
                     soundIcon.innerHTML = '🔇';
-                    soundIcon.style.display = 'flex';
                     soundIcon.style.opacity = '1';
                 }
             });
