@@ -81,8 +81,17 @@
             box-shadow: 0 0 100px rgba(255, 203, 5, 0.2);
             margin-bottom: 20px;
             animation: floatGlow 4s ease-in-out infinite;
+            /* Ensures content stays inside the circle */
+            overflow: hidden; 
         }
-        .logo-container img { width: 85%; height: 85%; object-fit: contain; }
+
+        /* CORRECTED: Logo styling to fit properly inside the circle */
+        .logo-container img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+            padding: 30px; /* Adds breathing room so it doesn't touch edges */
+        }
         
         h1 { font-size: 3.5rem; color: white; text-transform: uppercase; animation: pulseText 1.5s infinite alternate; text-shadow: 2px 2px 0 #000; }
         .tagline { font-size: 1.5rem; color: var(--csk-yellow); letter-spacing: 5px; font-weight: bold; text-shadow: 1px 1px 0 #000; }
@@ -140,6 +149,11 @@
             flex-direction: column;
             align-items: center;
             cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        #whistle-stage:active {
+            transform: translate(-50%, -50%) scale(0.95);
         }
 
         /* 3D CSS Whistle */
@@ -227,6 +241,7 @@
     <!-- STAGE 1: LOGO -->
     <div class="center-stage" id="logo-stage">
         <div class="logo-container">
+            <!-- Ensure your image file 'csk_custom.png' is in the same folder -->
             <img src="csk_custom.png" alt="CSK Logo" onerror="this.style.display='none'">
         </div>
         <h1>CHENNAI<br>SUPER KINGS</h1>
@@ -241,7 +256,8 @@
     </div>
 
     <!-- STAGE 3: WHISTLE INTERACTION -->
-    <div id="whistle-stage" onclick="playVideo()">
+    <!-- Added onclick to trigger sound + video -->
+    <div id="whistle-stage">
         <div class="whistle-container">
             <div class="whistle-body"></div>
             <div class="whistle-ring"></div>
@@ -252,7 +268,7 @@
     <!-- STAGE 4: VIDEO -->
     <div id="video-stage">
         <div class="video-wrapper">
-            <!-- onended triggers the reload -->
+            <!-- onended triggers the reload to come back to start -->
             <video id="main-video" playsinline onended="restartAll()">
                 <source src="video.mp4" type="video/mp4">
             </video>
@@ -260,6 +276,71 @@
     </div>
 
     <script>
+        // --- AUDIO SYSTEM (Web Audio API - No external files needed) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        const SoundFX = {
+            // 1. Whistle Sound Effect
+            playWhistle: function() {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                
+                const t = audioCtx.currentTime;
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.type = 'sine';
+                // Pitch ramp up to simulate whistle
+                oscillator.frequency.setValueAtTime(2000, t);
+                oscillator.frequency.linearRampToValueAtTime(2300, t + 0.1);
+                oscillator.frequency.linearRampToValueAtTime(2200, t + 0.3);
+                
+                // Volume envelope
+                gainNode.gain.setValueAtTime(0, t);
+                gainNode.gain.linearRampToValueAtTime(0.5, t + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, t + 1.5);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.start(t);
+                oscillator.stop(t + 1.5);
+            },
+
+            // 2. Card Assembly "Whoosh" Sound Effect
+            playCardAssembly: function() {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const t = audioCtx.currentTime;
+                const bufferSize = audioCtx.sampleRate * 1.5; // 1.5 seconds
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+
+                // Generate white noise
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+
+                // Filter to make it sound like a "whoosh" (Lowpass filter)
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, t);
+                filter.frequency.linearRampToValueAtTime(100, t + 1.0);
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0.5, t);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, t + 1.0);
+
+                noise.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                noise.start(t);
+            }
+        };
+
         // --- DATA ---
         const players = [
             { name: "Sanju Samson", role: "WK", img: "player1.png" },
@@ -349,6 +430,7 @@
 
         function initCards() {
             const grid = document.getElementById('grid-container');
+            grid.innerHTML = ''; // Clear previous cards
             let allPlayers = [...players, ...impactPlayers];
             
             allPlayers.forEach((p, index) => {
@@ -379,6 +461,8 @@
             setTimeout(() => {
                 logo.style.display = 'none';
                 cards.style.display = 'flex';
+                // ADDITION: Play sound when cards assemble
+                SoundFX.playCardAssembly();
             }, 1000);
 
             // 3. Show Whistle after 3 seconds of looking at cards
@@ -393,17 +477,23 @@
             const videoStage = document.getElementById('video-stage');
             const video = document.getElementById('main-video');
 
-            // Hide UI
-            whistle.style.display = 'none';
-            cards.style.display = 'none';
+            // ADDITION: Play Whistle Sound first
+            SoundFX.playWhistle();
 
-            // Show Video
-            videoStage.style.display = 'flex';
-            video.play();
+            // Small delay to let the whistle sound start before video opens
+            setTimeout(() => {
+                // Hide UI
+                whistle.style.display = 'none';
+                cards.style.display = 'none';
+
+                // Show Video
+                videoStage.style.display = 'flex';
+                video.play().catch(e => console.log("Video play failed (interaction required):", e));
+            }, 500);
         }
 
         function restartAll() {
-            // Reload page to start fresh
+            // Reload page to come back to starting page
             location.reload();
         }
 
@@ -412,6 +502,9 @@
             resize();
             animate();
             initCards();
+
+            // Attach click listener to whistle stage
+            document.getElementById('whistle-stage').addEventListener('click', playVideo);
 
             // Start Sequence after 4 seconds
             setTimeout(runSequence, 4000);
