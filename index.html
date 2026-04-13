@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSK | Champions Video</title>
+    <title>CSK | Playing XI</title>
     <style>
         :root {
             --csk-yellow: #FFCB05;
@@ -22,10 +22,10 @@
             justify-content: center;
             align-items: center;
             font-family: 'Arial Black', sans-serif;
-            cursor: pointer; /* Indicates clickable */
+            cursor: pointer;
         }
 
-        /* --- STADIUM CANVAS (Background) --- */
+        /* --- BACKGROUND --- */
         #stadium-canvas {
             position: absolute;
             top: 0;
@@ -33,10 +33,9 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            transition: opacity 2s ease;
         }
 
-        /* --- SMOKE OVERLAY (Transition Effect) --- */
+        /* --- SMOKE OVERLAY --- */
         #smoke-overlay {
             position: fixed;
             top: 50%;
@@ -60,7 +59,7 @@
             100% { transform: translate(-50%, -50%) scale(300); opacity: 0; }
         }
 
-        /* --- STAGE 1: LOGO & TEXT --- */
+        /* --- STAGE 1: LOGO --- */
         .center-stage {
             position: relative;
             z-index: 10;
@@ -83,25 +82,91 @@
             overflow: hidden;
             animation: floatGlow 4s ease-in-out infinite;
         }
-
-        .logo-container img { width: 85%; height: 85%; object-fit: contain; z-index: 2; }
-        .fallback-msg { display: none; color: var(--csk-yellow); font-size: 1.2rem; text-align: center; }
+        .logo-container img { width: 85%; height: 85%; object-fit: contain; }
         
-        .click-hint {
-            position: absolute;
-            bottom: 10%;
-            width: 100%;
-            text-align: center;
-            color: rgba(255,255,255,0.5);
-            font-size: 0.9rem;
-            animation: pulseText 1s infinite alternate;
-            pointer-events: none;
-        }
-
-        h1 { font-size: 3.5rem; color: white; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; animation: pulseText 1.5s infinite alternate; }
+        h1 { font-size: 3.5rem; color: white; text-transform: uppercase; letter-spacing: 2px; animation: pulseText 1.5s infinite alternate; }
         .tagline { font-size: 1.5rem; color: var(--csk-yellow); letter-spacing: 5px; font-weight: bold; }
 
-        /* --- STAGE 2: VIDEO & TROPHY RING --- */
+        /* --- STAGE 2: PLAYER CARDS --- */
+        #card-stage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            z-index: 15;
+            display: none; /* Hidden initially */
+            perspective: 1000px;
+        }
+
+        .player-card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 420px;
+            background: linear-gradient(135deg, var(--csk-blue), #000);
+            border: 4px solid var(--csk-yellow);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(255, 203, 5, 0.4);
+            /* Start off screen left */
+            transform: translate(-50%, -50%) translateX(-150vw); 
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            overflow: hidden;
+        }
+
+        .player-card.active {
+            /* Move to center */
+            transform: translate(-50%, -50%) translateX(0); 
+        }
+
+        .player-card.exit {
+            /* Move off screen right */
+            transform: translate(-50%, -50%) translateX(150vw); 
+        }
+
+        .player-img {
+            width: 200px;
+            height: 250px;
+            object-fit: cover;
+            border-bottom: 2px solid var(--csk-yellow);
+            margin-bottom: 15px;
+        }
+
+        .player-role {
+            color: var(--csk-yellow);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .player-name {
+            font-size: 1.8rem;
+            text-align: center;
+            color: white;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        .impact-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--csk-yellow);
+            color: var(--csk-blue);
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+
+        /* --- STAGE 3: VIDEO --- */
         #video-stage {
             position: absolute;
             top: 50%;
@@ -111,10 +176,9 @@
             z-index: 20;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* Let clicks pass to body */
+            pointer-events: none;
         }
 
-        /* THE BIG VIDEO FRAME */
         .video-wrapper {
             position: absolute;
             top: 50%;
@@ -133,97 +197,35 @@
             align-items: center;
         }
 
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        video { width: 100%; height: 100%; object-fit: cover; }
 
-        /* SOUND ICON OVERLAY */
         .sound-overlay {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             z-index: 30;
             background: rgba(0,0,0,0.5);
             border-radius: 50%;
-            width: 80px;
-            height: 80px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 40px;
-            pointer-events: none;
+            width: 80px; height: 80px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 40px; pointer-events: none;
             transition: opacity 0.5s;
         }
 
-        /* Error message style */
         .video-error-msg {
-            color: red;
-            font-size: 1.5rem;
-            text-align: center;
-            display: none;
-            padding: 20px;
-            background: rgba(0,0,0,0.8);
-            border-radius: 10px;
-            z-index: 31;
-        }
-
-        /* THE ROTATING TROPHY RING */
-        .trophy-ring {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 85vmin;
-            height: 85vmin;
-            transform: translate(-50%, -50%);
-            border: 2px dashed rgba(255, 203, 5, 0.3);
-            border-radius: 50%;
-            animation: rotateRing 20s linear infinite;
-            z-index: 20;
-            pointer-events: none;
-        }
-
-        .trophy-item {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform-origin: 0 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .trophy-icon {
-            font-size: 3rem;
-            filter: drop-shadow(0 0 10px gold);
-            animation: bob 2s ease-in-out infinite;
-        }
-
-        .year-text {
-            color: var(--csk-yellow);
-            font-weight: bold;
-            font-size: 1.2rem;
-            background: var(--csk-blue);
-            padding: 2px 8px;
-            border-radius: 5px;
-            border: 1px solid var(--csk-yellow);
-            margin-top: 5px;
+            color: red; font-size: 1.5rem; text-align: center; display: none;
+            padding: 20px; background: rgba(0,0,0,0.8); border-radius: 10px; z-index: 31;
         }
 
         /* --- ANIMATIONS --- */
-        @keyframes rotateRing { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
         @keyframes floatGlow { 0%, 100% { transform: translateY(0); box-shadow: 0 0 50px rgba(255, 203, 5, 0.2); } 50% { transform: translateY(-10px); box-shadow: 0 0 80px rgba(255, 203, 5, 0.5); } }
         @keyframes pulseText { from { transform: scale(1); text-shadow: 0 0 10px white; } to { transform: scale(1.05); text-shadow: 0 0 30px var(--csk-yellow); } }
-        @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
         @media (max-width: 600px) {
-            .logo-container { width: 220px; height: 220px; }
-            h1 { font-size: 2rem; }
-            .video-wrapper { width: 80vmin; height: 80vmin; }
-            .trophy-ring { width: 95vmin; height: 95vmin; }
+            .player-card { width: 260px; height: 380px; }
+            .player-img { width: 160px; height: 200px; }
+            .player-name { font-size: 1.4rem; }
+            .video-wrapper { width: 90vmin; height: 90vmin; }
         }
     </style>
 </head>
@@ -232,38 +234,63 @@
     <canvas id="stadium-canvas"></canvas>
     <div id="smoke-overlay"></div>
 
+    <!-- STAGE 1: LOGO -->
     <div class="center-stage" id="logo-stage">
         <div class="logo-container">
-            <img src="csk_custom.png" alt="CSK Logo" onerror="this.style.display='none'; document.querySelector('.fallback-msg').style.display='block'">
-            <div class="fallback-msg">SAVE IMAGE AS<br>'csk_custom.png'</div>
+            <img src="csk_custom.png" alt="CSK Logo">
         </div>
         <h1>CHENNAI<br>SUPER KINGS</h1>
         <div class="tagline">WHISTLE PODU!</div>
-        <div class="click-hint" id="start-hint" style="display:none;">(Click anywhere if video doesn't start)</div>
     </div>
 
+    <!-- STAGE 2: CARDS -->
+    <div id="card-stage">
+        <!-- Card content injected by JS -->
+        <div class="player-card" id="active-card">
+            <div class="player-role" id="card-role">ROLE</div>
+            <img src="" alt="Player" class="player-img" id="card-img">
+            <div class="player-name" id="card-name">PLAYER NAME</div>
+        </div>
+    </div>
+
+    <!-- STAGE 3: VIDEO -->
     <div id="video-stage">
-        <div class="trophy-ring" id="trophy-ring-container"></div>
-        
         <div class="video-wrapper">
             <video id="main-video" playsinline loop>
                 <source src="video.mp4" type="video/mp4">
             </video>
-            
-            <!-- Sound Icon Overlay -->
             <div id="sound-icon" class="sound-overlay">🔇</div>
-
-            <!-- Error Message -->
-            <div id="error-display" class="video-error-msg">
-                ERROR:<br>video.mp4 not found!
-            </div>
+            <div id="error-display" class="video-error-msg">ERROR: video.mp4 not found!</div>
         </div>
     </div>
 
     <script>
-        const TRANSITION_DELAY = 5000; 
+        // --- CONFIGURATION ---
+        const CARD_DISPLAY_TIME = 1800; // Time each card is visible (ms)
+        const TRANSITION_DELAY = 5000; // Time before smoke starts
 
-        // --- STADIUM ANIMATION ---
+        // --- PLAYER DATA ---
+        // Make sure you have files named player1.png ... player11.png and impact1.png, impact2.png
+        const players = [
+            { name: "Sanju Samson", role: "🧤 WK", img: "player1.png" },
+            { name: "Ayush Mhatre", role: "Batter", img: "player2.png" },
+            { name: "Ruturaj Gaikwad", role: "(C) Batter", img: "player3.png" },
+            { name: "Dewald Brevis", role: "Batter", img: "player4.png" },
+            { name: "Sarfaraz Khan", role: "Batter", img: "player5.png" },
+            { name: "Shivam Dube", role: "All-Rounder", img: "player6.png" },
+            { name: "Ramakrishna Ghosh", role: "Bowler", img: "player7.png" },
+            { name: "Jamie Overton", role: "✈️ All-Rounder", img: "player8.png" },
+            { name: "Noor Ahmad", role: "✈️ Bowler", img: "player9.png" },
+            { name: "Khaleel Ahmed", role: "Bowler", img: "player10.png" },
+            { name: "Gurjapneet Singh", role: "🔄 Bowler", img: "player11.png" }
+        ];
+
+        const impactPlayers = [
+            { name: "Anshul Kamboj", role: "IMPACT SUB", img: "impact1.png" },
+            { name: "Urvil Patel", role: "IMPACT SUB", img: "impact2.png" }
+        ];
+
+        // --- BACKGROUND ANIMATION (Canvas) ---
         const canvas = document.getElementById('stadium-canvas');
         const ctx = canvas.getContext('2d');
         let width, height, spectators = [], confetti = [], time = 0;
@@ -277,168 +304,186 @@
 
         class Spectator {
             constructor(angle, row) {
-                this.angle = angle;
-                this.row = row;
+                this.angle = angle; this.row = row;
                 this.radius = 400 + (row * 30);
                 this.size = Math.random() * 6 + 4;
-                this.offset = Math.random() * 100;
                 const colors = ['#FFCB05', '#FFD700', '#FFA500', '#FFEC8B'];
                 this.color = colors[Math.floor(Math.random() * colors.length)];
             }
-            update(t) {
-                const wave = Math.sin(t * 0.05 + this.angle * 5 + this.row);
-                this.currentY = wave * 10;
-            }
+            update(t) { this.currentY = Math.sin(t * 0.05 + this.angle * 5 + this.row) * 10; }
             draw() {
-                const centerX = width / 2;
-                const bottomY = height + 200;
+                const centerX = width / 2, bottomY = height + 200;
                 const x = centerX + Math.cos(this.angle) * this.radius;
                 const y = bottomY + Math.sin(this.angle) * this.radius + this.currentY;
                 ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(x, y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(x, y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
 
         class Confetti {
             constructor() { this.reset(); }
             reset() {
-                this.x = Math.random() * width;
-                this.y = height + 20;
-                this.vx = (Math.random() - 0.5) * 2;
-                this.vy = -(Math.random() * 5 + 2);
+                this.x = Math.random() * width; this.y = height + 20;
+                this.vx = (Math.random() - 0.5) * 2; this.vy = -(Math.random() * 5 + 2);
                 this.size = Math.random() * 8 + 2;
                 this.color = Math.random() > 0.5 ? '#FFCB05' : '#001242';
-                this.rotation = Math.random() * 360;
             }
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.rotation += 2;
-                if (this.y < -20) this.reset();
-            }
+            update() { this.x += this.vx; this.y += this.vy; if (this.y < -20) this.reset(); }
             draw() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.rotation * Math.PI / 180);
-                ctx.fillStyle = this.color;
-                ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
-                ctx.restore();
+                ctx.save(); ctx.translate(this.x, this.y); ctx.fillStyle = this.color;
+                ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size); ctx.restore();
             }
         }
 
         function initSpectators() {
             spectators = [];
-            const rows = 20, peoplePerRow = 60;
-            for (let r = 0; r < rows; r++) {
-                for (let i = 0; i < peoplePerRow; i++) {
-                    const angle = (Math.PI * (i / peoplePerRow)) + (Math.random() * 0.05);
-                    spectators.push(new Spectator(angle, r));
+            for (let r = 0; r < 20; r++) {
+                for (let i = 0; i < 60; i++) {
+                    spectators.push(new Spectator((Math.PI * (i/60)) + Math.random()*0.05, r));
                 }
             }
         }
 
         function animate() {
             ctx.clearRect(0, 0, width, height);
-            
-            if(document.getElementById('video-stage').style.display === 'block') {
-                ctx.fillStyle = 'rgba(0,0,0,0.8)'; 
-            } else {
-                const gradient = ctx.createRadialGradient(width/2, height/2, 100, width/2, height/2, width);
-                gradient.addColorStop(0, '#1a1a1a');
-                gradient.addColorStop(1, '#000000');
-                ctx.fillStyle = gradient;
-            }
+            const isVideo = document.getElementById('video-stage').style.display === 'block';
+            ctx.fillStyle = isVideo ? 'rgba(0,0,0,0.8)' : '#000000';
             ctx.fillRect(0, 0, width, height);
 
             time++;
             spectators.forEach(s => { s.update(time); s.draw(); });
             if (confetti.length < 100) confetti.push(new Confetti());
-            for (let i = confetti.length - 1; i >= 0; i--) {
-                let c = confetti[i];
-                c.update();
-                c.draw();
-            }
+            confetti.forEach(c => { c.update(); c.draw(); });
             requestAnimationFrame(animate);
         }
 
-        // --- TROPHY RING ---
-        const years = [2010, 2011, 2018, 2021, 2023];
-        const ringContainer = document.getElementById('trophy-ring-container');
-        years.forEach((year, index) => {
-            const angle = (index / years.length) * 360;
-            const item = document.createElement('div');
-            item.className = 'trophy-item';
-            item.style.transform = `rotate(${angle}deg) translate(42vmin) rotate(-${angle}deg)`; 
-            item.innerHTML = `<div class="trophy-icon">🏆</div><div class="year-text">${year}</div>`;
-            ringContainer.appendChild(item);
-        });
+        // --- SEQUENCE LOGIC ---
 
-        // --- MAIN LOGIC ---
-        let hasStarted = false;
+        // Helper to wait
+        const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        async function startCardSequence() {
+            const logoStage = document.getElementById('logo-stage');
+            const cardStage = document.getElementById('card-stage');
+            const card = document.getElementById('active-card');
+            
+            // Hide Logo, Show Card Stage
+            logoStage.style.display = 'none';
+            cardStage.style.display = 'block';
+
+            // Function to show a single card
+            const showCard = async (player, isImpact = false) => {
+                // Reset card position (left)
+                card.className = 'player-card'; 
+                card.style.transform = 'translate(-50%, -50%) translateX(-150vw)';
+                
+                // Update Content
+                document.getElementById('card-name').innerText = player.name;
+                document.getElementById('card-role').innerText = player.role;
+                document.getElementById('card-img').src = player.img;
+                
+                // Add Impact Badge if needed
+                let badge = card.querySelector('.impact-badge');
+                if(isImpact) {
+                    if(!badge) {
+                        badge = document.createElement('div');
+                        badge.className = 'impact-badge';
+                        badge.innerText = 'IMPACT PLAYER';
+                        card.appendChild(badge);
+                    }
+                    badge.style.display = 'block';
+                } else {
+                    if(badge) badge.style.display = 'none';
+                }
+
+                // Wait a tiny bit for DOM update
+                await wait(50);
+
+                // Slide In
+                card.classList.add('active');
+
+                // Wait while visible
+                await wait(CARD_DISPLAY_TIME);
+
+                // Slide Out
+                card.classList.remove('active');
+                card.classList.add('exit');
+
+                // Wait for exit animation
+                await wait(600);
+            };
+
+            // 1. Show Main XI
+            for (let p of players) {
+                await showCard(p);
+            }
+
+            // 2. Show Impact Players
+            for (let ip of impactPlayers) {
+                await showCard(ip, true);
+            }
+
+            // 3. Start Video
+            startVideoSequence();
+        }
 
         function startVideoSequence() {
-            if(hasStarted) return;
-            hasStarted = true;
-
-            const smoke = document.getElementById('smoke-overlay');
-            const logoStage = document.getElementById('logo-stage');
+            const cardStage = document.getElementById('card-stage');
             const videoStage = document.getElementById('video-stage');
             const video = document.getElementById('main-video');
+            const smoke = document.getElementById('smoke-overlay');
 
-            // 1. Explode Smoke
+            // Smoke Transition effect again
+            smoke.classList.remove('smoke-explode');
+            void smoke.offsetWidth; // trigger reflow
             smoke.classList.add('smoke-explode');
 
-            // 2. Switch content halfway through
             setTimeout(() => {
-                logoStage.style.display = 'none';
+                cardStage.style.display = 'none';
                 videoStage.style.display = 'block';
                 
-                // Attempt Play (Muted for Autoplay)
+                // Play Video
                 video.muted = true; 
                 video.play().then(() => {
-                    console.log("Video started (Muted)");
-                }).catch(e => {
-                    console.log("Autoplay blocked, waiting for click");
-                });
+                    console.log("Video started");
+                }).catch(e => console.log("Video play blocked"));
             }, 1000);
 
-            // 3. Fade out smoke
             setTimeout(() => {
                 smoke.style.opacity = '0';
             }, 1900);
         }
 
-        // Handle Video Errors
-        document.getElementById('main-video').addEventListener('error', function() {
-            console.error("Video file not found");
-            document.getElementById('error-display').style.display = 'block';
-        });
-
-        // Initialize
+        // --- INITIALIZATION ---
         window.onload = () => {
             resize();
             animate();
-            
-            // Auto start after delay
-            setTimeout(startVideoSequence, TRANSITION_DELAY);
 
-            // GLOBAL CLICK LISTENER
+            // 1. Start Logo -> Smoke
+            setTimeout(() => {
+                const smoke = document.getElementById('smoke-overlay');
+                smoke.classList.add('smoke-explode');
+
+                // 2. After smoke covers screen, switch to Cards
+                setTimeout(() => {
+                    startCardSequence();
+                }, 1000); // Halfway through smoke
+
+            }, TRANSITION_DELAY);
+
+            // CLICK HANDLER (Unmute Video)
             document.body.addEventListener('click', () => {
                 const video = document.getElementById('main-video');
                 const soundIcon = document.getElementById('sound-icon');
                 
-                // 1. If sequence hasn't started, start it
-                if(!hasStarted) {
-                    startVideoSequence();
+                if(video.paused && document.getElementById('video-stage').style.display === 'block') {
+                    video.play();
                 }
 
-                // 2. Handle Mute/Unmute
                 if (video.muted) {
                     video.muted = false;
                     soundIcon.innerHTML = '🔊';
-                    soundIcon.style.opacity = '0'; // Hide icon after unmuting
+                    soundIcon.style.opacity = '0';
                     setTimeout(() => soundIcon.style.display = 'none', 500);
                 } else {
                     video.muted = true;
