@@ -22,20 +22,20 @@
             justify-content: center;
             align-items: center;
             font-family: 'Arial Black', sans-serif;
-            cursor: pointer;
+            cursor: default;
         }
 
-        /* --- BACKGROUND (Layer 1) --- */
+        /* --- BACKGROUND --- */
         #stadium-canvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1; /* Bottom layer */
+            z-index: 1;
         }
 
-        /* --- SMOKE OVERLAY (Layer 100) --- */
+        /* --- SMOKE --- */
         #smoke-overlay {
             position: fixed;
             top: 50%;
@@ -59,12 +59,11 @@
             100% { transform: translate(-50%, -50%) scale(300); opacity: 0; }
         }
 
-        /* --- STAGE 1: LOGO (Layer 50 - Top) --- */
+        /* --- STAGE 1: LOGO --- */
         .center-stage {
             position: relative;
-            z-index: 50; /* FORCED TO TOP */
+            z-index: 50;
             text-align: center;
-            transition: opacity 1s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -73,7 +72,7 @@
         .logo-container {
             width: 300px;
             height: 300px;
-            background: rgba(0, 18, 66, 0.9); /* Dark blue backup */
+            background: rgba(0, 18, 66, 0.9);
             border: 5px solid var(--csk-yellow);
             border-radius: 50%;
             display: flex;
@@ -81,114 +80,147 @@
             align-items: center;
             box-shadow: 0 0 100px rgba(255, 203, 5, 0.2);
             margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
             animation: floatGlow 4s ease-in-out infinite;
         }
         .logo-container img { width: 85%; height: 85%; object-fit: contain; }
         
-        h1 { font-size: 3.5rem; color: white; text-transform: uppercase; letter-spacing: 2px; animation: pulseText 1.5s infinite alternate; text-shadow: 2px 2px 0 #000; }
+        h1 { font-size: 3.5rem; color: white; text-transform: uppercase; animation: pulseText 1.5s infinite alternate; text-shadow: 2px 2px 0 #000; }
         .tagline { font-size: 1.5rem; color: var(--csk-yellow); letter-spacing: 5px; font-weight: bold; text-shadow: 1px 1px 0 #000; }
 
-        /* --- STAGE 2: PLAYER CARDS (Layer 40) --- */
-        #card-stage {
+        /* --- STAGE 2: CARDS GRID --- */
+        #cards-stage {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             z-index: 40;
             display: none;
-            perspective: 1000px;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .cards-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            max-width: 1200px;
         }
 
         .player-card {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 300px;
-            height: 420px;
+            width: 140px;
+            height: 200px;
             background: linear-gradient(135deg, var(--csk-blue), #000);
-            border: 4px solid var(--csk-yellow);
-            border-radius: 20px;
+            border: 2px solid var(--csk-yellow);
+            border-radius: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 30px rgba(255, 203, 5, 0.4);
-            transform: translate(-50%, -50%) translateX(-150vw); 
-            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-            overflow: hidden;
+            box-shadow: 0 0 10px rgba(255, 203, 5, 0.3);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0; /* Start hidden */
+            position: relative;
         }
 
-        .player-card.active { transform: translate(-50%, -50%) translateX(0); }
-        .player-card.exit { transform: translate(-50%, -50%) translateX(150vw); }
+        .player-card.impact { border-color: #fff; box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
 
-        .player-img {
-            width: 200px;
-            height: 250px;
-            object-fit: cover;
-            border-bottom: 2px solid var(--csk-yellow);
-            margin-bottom: 15px;
-            background: #222; /* Placeholder color */
+        .player-img { width: 80px; height: 100px; object-fit: cover; margin-bottom: 8px; border-bottom: 1px solid var(--csk-yellow); }
+        .player-role { font-size: 0.6rem; color: var(--csk-yellow); text-transform: uppercase; margin-bottom: 2px; }
+        .player-name { font-size: 0.8rem; text-align: center; color: white; text-transform: uppercase; line-height: 1; padding: 0 5px; }
+
+        /* --- STAGE 3: WHISTLE --- */
+        #whistle-stage {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 60; /* Above cards */
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
         }
 
-        .player-role { color: var(--csk-yellow); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
-        .player-name { font-size: 1.8rem; text-align: center; color: white; text-transform: uppercase; line-height: 1.1; }
-        .impact-badge { position: absolute; top: 10px; right: 10px; background: var(--csk-yellow); color: var(--csk-blue); padding: 5px 10px; font-size: 0.8rem; font-weight: bold; border-radius: 5px; }
+        /* 3D CSS Whistle */
+        .whistle-container {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: floatWhistle 2s ease-in-out infinite;
+        }
 
-        /* --- STAGE 3: VIDEO (Layer 30) --- */
+        .whistle-body {
+            width: 80px; height: 35px;
+            background: linear-gradient(to bottom, #FFD700, #FFCB05, #B8860B);
+            border-radius: 20px;
+            position: absolute;
+            top: 40px; left: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.5);
+            z-index: 2;
+        }
+        /* Mouthpiece */
+        .whistle-body::before {
+            content: ''; position: absolute;
+            width: 30px; height: 20px;
+            background: #FFCB05;
+            left: -25px; top: 8px;
+            border-radius: 5px 0 0 5px;
+            box-shadow: inset -5px 0 5px rgba(0,0,0,0.2);
+        }
+        /* Ring */
+        .whistle-ring {
+            width: 30px; height: 30px;
+            border: 6px solid #FFCB05;
+            border-radius: 50%;
+            position: absolute;
+            right: -10px; top: 50%;
+            transform: translateY(-50%) rotateX(60deg);
+            z-index: 1;
+            box-shadow: 0 5px 5px rgba(0,0,0,0.5);
+        }
+
+        .click-hint { margin-top: 20px; color: white; font-size: 1.2rem; animation: pulseText 1s infinite; }
+
+        /* --- STAGE 4: VIDEO --- */
         #video-stage {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             z-index: 30;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: black;
         }
 
         .video-wrapper {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60vmin;
-            height: 60vmin;
-            border-radius: 20px;
-            overflow: hidden;
-            border: 4px solid var(--csk-yellow);
+            width: 80vmin; height: 80vmin;
+            border: 5px solid var(--csk-yellow);
             box-shadow: 0 0 50px var(--csk-yellow);
-            z-index: 25;
-            background: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            overflow: hidden;
         }
 
         video { width: 100%; height: 100%; object-fit: cover; }
-        .sound-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 30; background: rgba(0,0,0,0.5); border-radius: 50%; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; font-size: 40px; pointer-events: none; transition: opacity 0.5s; }
-        .video-error-msg { color: red; font-size: 1.5rem; text-align: center; display: none; padding: 20px; background: rgba(0,0,0,0.8); border-radius: 10px; z-index: 31; }
 
-        @keyframes floatGlow { 0%, 100% { transform: translateY(0); box-shadow: 0 0 50px rgba(255, 203, 5, 0.2); } 50% { transform: translateY(-10px); box-shadow: 0 0 80px rgba(255, 203, 5, 0.5); } }
-        @keyframes pulseText { from { transform: scale(1); text-shadow: 0 0 10px white; } to { transform: scale(1.05); text-shadow: 0 0 30px var(--csk-yellow); } }
+        /* --- ANIMATIONS --- */
+        @keyframes floatGlow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes pulseText { from { transform: scale(1); } to { transform: scale(1.1); } }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+        @keyframes floatWhistle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
         @media (max-width: 600px) {
-            .player-card { width: 260px; height: 380px; }
-            .player-img { width: 160px; height: 200px; }
-            .player-name { font-size: 1.4rem; }
-            .video-wrapper { width: 90vmin; height: 90vmin; }
-            .logo-container { width: 220px; height: 220px; }
+            .player-card { width: 100px; height: 150px; }
+            .player-img { width: 60px; height: 70px; }
+            .player-name { font-size: 0.6rem; }
+            .logo-container { width: 200px; height: 200px; }
             h1 { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- LAYERS -->
     <canvas id="stadium-canvas"></canvas>
     <div id="smoke-overlay"></div>
 
@@ -201,52 +233,54 @@
         <div class="tagline">WHISTLE PODU!</div>
     </div>
 
-    <!-- STAGE 2: CARDS -->
-    <div id="card-stage">
-        <div class="player-card" id="active-card">
-            <div class="player-role" id="card-role">ROLE</div>
-            <img src="" alt="Player" class="player-img" id="card-img">
-            <div class="player-name" id="card-name">PLAYER NAME</div>
+    <!-- STAGE 2: ALL CARDS GRID -->
+    <div id="cards-stage">
+        <div class="cards-grid" id="grid-container">
+            <!-- JS will inject cards here -->
         </div>
     </div>
 
-    <!-- STAGE 3: VIDEO -->
+    <!-- STAGE 3: WHISTLE INTERACTION -->
+    <div id="whistle-stage" onclick="playVideo()">
+        <div class="whistle-container">
+            <div class="whistle-body"></div>
+            <div class="whistle-ring"></div>
+        </div>
+        <div class="click-hint">CLICK TO START</div>
+    </div>
+
+    <!-- STAGE 4: VIDEO -->
     <div id="video-stage">
         <div class="video-wrapper">
-            <video id="main-video" playsinline loop>
+            <!-- onended triggers the reload -->
+            <video id="main-video" playsinline onended="restartAll()">
                 <source src="video.mp4" type="video/mp4">
             </video>
-            <div id="sound-icon" class="sound-overlay">🔇</div>
-            <div id="error-display" class="video-error-msg">ERROR: video.mp4 not found!</div>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURATION ---
-        const CARD_DISPLAY_TIME = 1800; 
-        const TRANSITION_DELAY = 4000; // Reduced to 4s for faster testing
-
-        // --- PLAYER DATA ---
+        // --- DATA ---
         const players = [
-            { name: "Sanju Samson", role: "🧤 WK", img: "player1.png" },
-            { name: "Ayush Mhatre", role: "Batter", img: "player2.png" },
-            { name: "Ruturaj Gaikwad", role: "(C) Batter", img: "player3.png" },
-            { name: "Dewald Brevis", role: "Batter", img: "player4.png" },
-            { name: "Sarfaraz Khan", role: "Batter", img: "player5.png" },
-            { name: "Shivam Dube", role: "All-Rounder", img: "player6.png" },
-            { name: "Ramakrishna Ghosh", role: "Bowler", img: "player7.png" },
-            { name: "Jamie Overton", role: "✈️ All-Rounder", img: "player8.png" },
-            { name: "Noor Ahmad", role: "✈️ Bowler", img: "player9.png" },
-            { name: "Khaleel Ahmed", role: "Bowler", img: "player10.png" },
-            { name: "Gurjapneet Singh", role: "🔄 Bowler", img: "player11.png" }
+            { name: "Sanju Samson", role: "WK", img: "player1.png" },
+            { name: "Ayush Mhatre", role: "BAT", img: "player2.png" },
+            { name: "Ruturaj Gaikwad", role: "(C) BAT", img: "player3.png" },
+            { name: "Dewald Brevis", role: "BAT", img: "player4.png" },
+            { name: "Sarfaraz Khan", role: "BAT", img: "player5.png" },
+            { name: "Shivam Dube", role: "AR", img: "player6.png" },
+            { name: "Ramakrishna Ghosh", role: "BWL", img: "player7.png" },
+            { name: "Jamie Overton", role: "AR", img: "player8.png" },
+            { name: "Noor Ahmad", role: "BWL", img: "player9.png" },
+            { name: "Khaleel Ahmed", role: "BWL", img: "player10.png" },
+            { name: "Gurjapneet Singh", role: "BWL", img: "player11.png" }
         ];
 
         const impactPlayers = [
-            { name: "Anshul Kamboj", role: "IMPACT SUB", img: "impact1.png" },
-            { name: "Urvil Patel", role: "IMPACT SUB", img: "impact2.png" }
+            { name: "Anshul Kamboj", role: "IMPACT", img: "impact1.png" },
+            { name: "Urvil Patel", role: "IMPACT", img: "impact2.png" }
         ];
 
-        // --- BACKGROUND ANIMATION ---
+        // --- BACKGROUND ANIMATION (Canvas) ---
         const canvas = document.getElementById('stadium-canvas');
         const ctx = canvas.getContext('2d');
         let width, height, spectators = [], confetti = [], time = 0;
@@ -302,8 +336,7 @@
 
         function animate() {
             ctx.clearRect(0, 0, width, height);
-            const isVideo = document.getElementById('video-stage').style.display === 'block';
-            ctx.fillStyle = isVideo ? 'rgba(0,0,0,0.8)' : '#000000';
+            ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, width, height);
             time++;
             spectators.forEach(s => { s.update(time); s.draw(); });
@@ -312,119 +345,76 @@
             requestAnimationFrame(animate);
         }
 
-        // --- SEQUENCE LOGIC ---
-        
-        function showNextCard(list, index, isImpact) {
-            if(index >= list.length) {
-                if(isImpact) {
-                    startVideoSequence(); // All done
-                } else {
-                    // Finished Main XI, start Impact
-                    showNextCard(impactPlayers, 0, true);
-                }
-                return;
-            }
+        // --- LOGIC ---
 
-            const player = list[index];
-            const card = document.getElementById('active-card');
+        function initCards() {
+            const grid = document.getElementById('grid-container');
+            let allPlayers = [...players, ...impactPlayers];
             
-            // 1. Reset Position
-            card.className = 'player-card'; 
-            
-            // 2. Update Data
-            document.getElementById('card-name').innerText = player.name;
-            document.getElementById('card-role').innerText = player.role;
-            document.getElementById('card-img').src = player.img;
-            
-            let badge = card.querySelector('.impact-badge');
-            if(isImpact) {
-                if(!badge) { badge = document.createElement('div'); badge.className = 'impact-badge'; badge.innerText = 'IMPACT PLAYER'; card.appendChild(badge); }
-                badge.style.display = 'block';
-            } else {
-                if(badge) badge.style.display = 'none';
-            }
-
-            // 3. Trigger Reflow (Animation Reset)
-            void card.offsetWidth;
-
-            // 4. Slide In
-            card.classList.add('active');
-
-            // 5. Wait, then Slide Out
-            setTimeout(() => {
-                card.classList.remove('active');
-                card.classList.add('exit');
+            allPlayers.forEach((p, index) => {
+                const div = document.createElement('div');
+                const isImpact = index >= players.length;
+                div.className = isImpact ? 'player-card impact' : 'player-card';
+                div.style.animationDelay = `${index * 0.1}s`; // Staggered pop-in
                 
-                // 6. Wait for exit, then Next
-                setTimeout(() => {
-                    showNextCard(list, index + 1, isImpact);
-                }, 600); // Exit duration
-
-            }, CARD_DISPLAY_TIME);
+                div.innerHTML = `
+                    <img src="${p.img}" class="player-img" onerror="this.src='https://via.placeholder.com/100?text=IMG'">
+                    <div class="player-role">${p.role}</div>
+                    <div class="player-name">${p.name}</div>
+                `;
+                grid.appendChild(div);
+            });
         }
 
-        function startCardSequence() {
-            const logoStage = document.getElementById('logo-stage');
-            const cardStage = document.getElementById('card-stage');
-
-            logoStage.style.display = 'none';
-            cardStage.style.display = 'block';
-
-            showNextCard(players, 0, false);
-        }
-
-        function startVideoSequence() {
-            const cardStage = document.getElementById('card-stage');
-            const videoStage = document.getElementById('video-stage');
-            const video = document.getElementById('main-video');
+        function runSequence() {
+            const logo = document.getElementById('logo-stage');
             const smoke = document.getElementById('smoke-overlay');
+            const cards = document.getElementById('cards-stage');
+            const whistle = document.getElementById('whistle-stage');
 
-            // Smoke
-            smoke.classList.remove('smoke-explode');
-            void smoke.offsetWidth; 
+            // 1. Explode Smoke
             smoke.classList.add('smoke-explode');
 
+            // 2. Switch to Cards (Grid)
             setTimeout(() => {
-                cardStage.style.display = 'none';
-                videoStage.style.display = 'block';
-                video.muted = true; 
-                video.play().catch(e => console.log("Autoplay blocked"));
+                logo.style.display = 'none';
+                cards.style.display = 'flex';
             }, 1000);
 
-            setTimeout(() => { smoke.style.opacity = '0'; }, 1900);
+            // 3. Show Whistle after 3 seconds of looking at cards
+            setTimeout(() => {
+                whistle.style.display = 'flex';
+            }, 4000);
+        }
+
+        function playVideo() {
+            const whistle = document.getElementById('whistle-stage');
+            const cards = document.getElementById('cards-stage');
+            const videoStage = document.getElementById('video-stage');
+            const video = document.getElementById('main-video');
+
+            // Hide UI
+            whistle.style.display = 'none';
+            cards.style.display = 'none';
+
+            // Show Video
+            videoStage.style.display = 'flex';
+            video.play();
+        }
+
+        function restartAll() {
+            // Reload page to start fresh
+            location.reload();
         }
 
         // --- INIT ---
         window.onload = () => {
             resize();
             animate();
+            initCards();
 
-            // Start Timer
-            setTimeout(() => {
-                const smoke = document.getElementById('smoke-overlay');
-                smoke.classList.add('smoke-explode');
-
-                setTimeout(() => {
-                    startCardSequence();
-                }, 1000);
-
-            }, TRANSITION_DELAY);
-
-            // Audio Fix
-            document.body.addEventListener('click', () => {
-                const video = document.getElementById('main-video');
-                const soundIcon = document.getElementById('sound-icon');
-                if(video.paused && document.getElementById('video-stage').style.display === 'block') { video.play(); }
-                if (video.muted) {
-                    video.muted = false;
-                    soundIcon.innerHTML = '🔊';
-                    soundIcon.style.opacity = '0';
-                } else {
-                    video.muted = true;
-                    soundIcon.innerHTML = '🔇';
-                    soundIcon.style.opacity = '1';
-                }
-            });
+            // Start Sequence after 4 seconds
+            setTimeout(runSequence, 4000);
         };
     </script>
 </body>
