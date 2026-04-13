@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSK | Playing XI</title>
+    <!-- Added FontAwesome for Trophy Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --csk-yellow: #FFCB05;
@@ -81,16 +83,14 @@
             box-shadow: 0 0 100px rgba(255, 203, 5, 0.2);
             margin-bottom: 20px;
             animation: floatGlow 4s ease-in-out infinite;
-            /* Ensures content stays inside the circle */
             overflow: hidden; 
         }
 
-        /* CORRECTED: Logo styling to fit properly inside the circle */
         .logo-container img { 
             width: 100%; 
             height: 100%; 
             object-fit: contain; 
-            padding: 30px; /* Adds breathing room so it doesn't touch edges */
+            padding: 30px; 
         }
         
         h1 { font-size: 3.5rem; color: white; text-transform: uppercase; animation: pulseText 1.5s infinite alternate; text-shadow: 2px 2px 0 #000; }
@@ -129,7 +129,7 @@
             justify-content: center;
             box-shadow: 0 0 10px rgba(255, 203, 5, 0.3);
             animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            opacity: 0; /* Start hidden */
+            opacity: 0; 
             position: relative;
         }
 
@@ -144,7 +144,7 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 60; /* Above cards */
+            z-index: 60;
             display: none;
             flex-direction: column;
             align-items: center;
@@ -152,11 +152,8 @@
             transition: transform 0.2s;
         }
 
-        #whistle-stage:active {
-            transform: translate(-50%, -50%) scale(0.95);
-        }
+        #whistle-stage:active { transform: translate(-50%, -50%) scale(0.95); }
 
-        /* 3D CSS Whistle */
         .whistle-container {
             width: 120px;
             height: 120px;
@@ -174,7 +171,6 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.5);
             z-index: 2;
         }
-        /* Mouthpiece */
         .whistle-body::before {
             content: ''; position: absolute;
             width: 30px; height: 20px;
@@ -183,7 +179,6 @@
             border-radius: 5px 0 0 5px;
             box-shadow: inset -5px 0 5px rgba(0,0,0,0.2);
         }
-        /* Ring */
         .whistle-ring {
             width: 30px; height: 30px;
             border: 6px solid #FFCB05;
@@ -197,7 +192,7 @@
 
         .click-hint { margin-top: 20px; color: white; font-size: 1.2rem; animation: pulseText 1s infinite; }
 
-        /* --- STAGE 4: VIDEO --- */
+        /* --- STAGE 4: VIDEO (UPDATED) --- */
         #video-stage {
             position: absolute;
             top: 0; left: 0;
@@ -206,23 +201,105 @@
             display: none;
             justify-content: center;
             align-items: center;
+            flex-direction: column; /* Stack video and trophies */
             background: black;
-        }
-
-        .video-wrapper {
-            width: 80vmin; height: 80vmin;
-            border: 5px solid var(--csk-yellow);
-            box-shadow: 0 0 50px var(--csk-yellow);
             overflow: hidden;
         }
 
+        /* 1. Vibing Background Effect */
+        .vibe-bg {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 150vmax; height: 150vmax;
+            transform: translate(-50%, -50%);
+            background: conic-gradient(from 0deg, transparent 0%, var(--csk-blue) 20%, var(--csk-yellow) 40%, transparent 60%, var(--csk-blue) 80%, transparent 100%);
+            opacity: 0.3;
+            animation: vibeSpin 10s linear infinite;
+            z-index: 0;
+            filter: blur(20px);
+        }
+        
+        .vibe-particles {
+            position: absolute;
+            width: 100%; height: 100%;
+            z-index: 1;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            animation: particleMove 60s linear infinite;
+        }
+
+        .video-wrapper {
+            width: 70vmin; height: 70vmin; /* Slightly smaller to fit ticker */
+            border: 4px solid var(--csk-yellow);
+            box-shadow: 0 0 50px var(--csk-yellow);
+            overflow: hidden;
+            z-index: 10;
+            border-radius: 10px;
+            animation: videoPulse 2s ease-in-out infinite; /* New Pulsing Animation */
+        }
+
         video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* 2. Trophy Ticker Animation */
+        .trophy-bar-container {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            height: 80px;
+            background: rgba(0, 18, 66, 0.8);
+            border-top: 2px solid var(--csk-yellow);
+            border-bottom: 2px solid var(--csk-yellow);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
+        }
+
+        .trophy-track {
+            display: flex;
+            align-items: center;
+            gap: 80px;
+            /* Animation set to slide left continuously */
+            animation: slideLeft 20s linear infinite;
+            padding-left: 50px;
+        }
+
+        .trophy-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.5rem;
+            color: white;
+            white-space: nowrap;
+        }
+
+        .trophy-icon {
+            color: var(--csk-yellow);
+            font-size: 2rem;
+            filter: drop-shadow(0 0 5px var(--csk-yellow));
+        }
+
+        .trophy-year {
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
 
         /* --- ANIMATIONS --- */
         @keyframes floatGlow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes pulseText { from { transform: scale(1); } to { transform: scale(1.1); } }
         @keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
         @keyframes floatWhistle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        
+        @keyframes vibeSpin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+        @keyframes particleMove { from { background-position: 0 0, 40px 60px, 130px 270px; } to { background-position: 550px 550px, 390px 410px, 380px 520px; } }
+        @keyframes videoPulse { 0%, 100% { box-shadow: 0 0 30px var(--csk-yellow); } 50% { box-shadow: 0 0 80px var(--csk-yellow), 0 0 20px white; } }
+        @keyframes slideLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
         @media (max-width: 600px) {
             .player-card { width: 100px; height: 150px; }
@@ -230,6 +307,9 @@
             .player-name { font-size: 0.6rem; }
             .logo-container { width: 200px; height: 200px; }
             h1 { font-size: 2rem; }
+            .video-wrapper { width: 90vw; height: 50vh; }
+            .trophy-year { font-size: 1rem; }
+            .trophy-icon { font-size: 1.5rem; }
         }
     </style>
 </head>
@@ -241,7 +321,6 @@
     <!-- STAGE 1: LOGO -->
     <div class="center-stage" id="logo-stage">
         <div class="logo-container">
-            <!-- Ensure your image file 'csk_custom.png' is in the same folder -->
             <img src="csk_custom.png" alt="CSK Logo" onerror="this.style.display='none'">
         </div>
         <h1>CHENNAI<br>SUPER KINGS</h1>
@@ -256,7 +335,6 @@
     </div>
 
     <!-- STAGE 3: WHISTLE INTERACTION -->
-    <!-- Added onclick to trigger sound + video -->
     <div id="whistle-stage">
         <div class="whistle-container">
             <div class="whistle-body"></div>
@@ -265,22 +343,47 @@
         <div class="click-hint">CLICK TO START</div>
     </div>
 
-    <!-- STAGE 4: VIDEO -->
+    <!-- STAGE 4: VIDEO (ENHANCED) -->
     <div id="video-stage">
+        <!-- New: Vibing Background Effects -->
+        <div class="vibe-bg"></div>
+        <div class="vibe-particles"></div>
+
+        <!-- Video Wrapper -->
         <div class="video-wrapper">
-            <!-- onended triggers the reload to come back to start -->
             <video id="main-video" playsinline onended="restartAll()">
                 <source src="video.mp4" type="video/mp4">
             </video>
         </div>
+
+        <!-- New: Trophy Ticker Animation -->
+        <div class="trophy-bar-container">
+            <div class="trophy-track">
+                <!-- We duplicate the list to ensure smooth infinite scrolling -->
+                <!-- Set 1 -->
+                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2010</span></div>
+                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2011</span></div>
+                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2018</span></div>
+                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2021</span></div>
+                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2023</span></div>
+                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2024</span></div>
+                
+                <!-- Set 2 (Duplicate for loop) -->
+                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2010</span></div>
+                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2011</span></div>
+                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2018</span></div>
+                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2021</span></div>
+                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2023</span></div>
+                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2024</span></div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // --- AUDIO SYSTEM (Web Audio API - No external files needed) ---
+        // --- AUDIO SYSTEM ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         const SoundFX = {
-            // 1. Whistle Sound Effect
             playWhistle: function() {
                 if (audioCtx.state === 'suspended') audioCtx.resume();
                 
@@ -289,12 +392,10 @@
                 const gainNode = audioCtx.createGain();
                 
                 oscillator.type = 'sine';
-                // Pitch ramp up to simulate whistle
                 oscillator.frequency.setValueAtTime(2000, t);
                 oscillator.frequency.linearRampToValueAtTime(2300, t + 0.1);
                 oscillator.frequency.linearRampToValueAtTime(2200, t + 0.3);
                 
-                // Volume envelope
                 gainNode.gain.setValueAtTime(0, t);
                 gainNode.gain.linearRampToValueAtTime(0.5, t + 0.05);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, t + 1.5);
@@ -306,16 +407,14 @@
                 oscillator.stop(t + 1.5);
             },
 
-            // 2. Card Assembly "Whoosh" Sound Effect
             playCardAssembly: function() {
                 if (audioCtx.state === 'suspended') audioCtx.resume();
 
                 const t = audioCtx.currentTime;
-                const bufferSize = audioCtx.sampleRate * 1.5; // 1.5 seconds
+                const bufferSize = audioCtx.sampleRate * 1.5; 
                 const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 const data = buffer.getChannelData(0);
 
-                // Generate white noise
                 for (let i = 0; i < bufferSize; i++) {
                     data[i] = Math.random() * 2 - 1;
                 }
@@ -323,7 +422,6 @@
                 const noise = audioCtx.createBufferSource();
                 noise.buffer = buffer;
 
-                // Filter to make it sound like a "whoosh" (Lowpass filter)
                 const filter = audioCtx.createBiquadFilter();
                 filter.type = 'lowpass';
                 filter.frequency.setValueAtTime(800, t);
@@ -430,14 +528,14 @@
 
         function initCards() {
             const grid = document.getElementById('grid-container');
-            grid.innerHTML = ''; // Clear previous cards
+            grid.innerHTML = ''; 
             let allPlayers = [...players, ...impactPlayers];
             
             allPlayers.forEach((p, index) => {
                 const div = document.createElement('div');
                 const isImpact = index >= players.length;
                 div.className = isImpact ? 'player-card impact' : 'player-card';
-                div.style.animationDelay = `${index * 0.1}s`; // Staggered pop-in
+                div.style.animationDelay = `${index * 0.1}s`; 
                 
                 div.innerHTML = `
                     <img src="${p.img}" class="player-img" onerror="this.src='https://via.placeholder.com/100?text=IMG'">
@@ -461,11 +559,10 @@
             setTimeout(() => {
                 logo.style.display = 'none';
                 cards.style.display = 'flex';
-                // ADDITION: Play sound when cards assemble
                 SoundFX.playCardAssembly();
             }, 1000);
 
-            // 3. Show Whistle after 3 seconds of looking at cards
+            // 3. Show Whistle
             setTimeout(() => {
                 whistle.style.display = 'flex';
             }, 4000);
@@ -477,18 +574,16 @@
             const videoStage = document.getElementById('video-stage');
             const video = document.getElementById('main-video');
 
-            // ADDITION: Play Whistle Sound first
+            // Play Whistle Sound
             SoundFX.playWhistle();
 
-            // Small delay to let the whistle sound start before video opens
             setTimeout(() => {
-                // Hide UI
                 whistle.style.display = 'none';
                 cards.style.display = 'none';
 
                 // Show Video
                 videoStage.style.display = 'flex';
-                video.play().catch(e => console.log("Video play failed (interaction required):", e));
+                video.play().catch(e => console.log("Video play failed:", e));
             }, 500);
         }
 
@@ -503,10 +598,8 @@
             animate();
             initCards();
 
-            // Attach click listener to whistle stage
             document.getElementById('whistle-stage').addEventListener('click', playVideo);
 
-            // Start Sequence after 4 seconds
             setTimeout(runSequence, 4000);
         };
     </script>
