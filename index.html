@@ -16,14 +16,13 @@
         body {
             background-color: var(--stadium-dark);
             color: white;
-            overflow: hidden; /* Hide scrollbars generally */
+            overflow: hidden; /* Main scroll hidden */
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             font-family: 'Arial Black', sans-serif;
             cursor: default;
-            transition: background-color 0.1s;
         }
 
         /* --- BACKGROUND --- */
@@ -68,12 +67,12 @@
             box-shadow: 0 0 100px rgba(255, 203, 5, 0.2);
             margin-bottom: 20px;
             animation: floatGlow 4s ease-in-out infinite;
-            overflow: hidden; /* CRITICAL: Keeps logo inside circle */
+            overflow: hidden; /* Keeps logo inside */
             position: relative;
         }
         .logo-container img { 
-            width: 90%; height: 90%; /* Slightly larger to fit tight */
-            object-fit: contain; /* CRITICAL: Maintains aspect ratio */
+            width: 85%; height: 85%; 
+            object-fit: contain; /* Keeps aspect ratio */
             position: relative; z-index: 2; 
         }
         h1 { font-size: 3.5rem; color: white; text-transform: uppercase; animation: pulseText 1.5s infinite alternate; text-shadow: 2px 2px 0 #000; }
@@ -83,12 +82,12 @@
         #cards-stage {
             position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
-            z-index: 40;
+            z-index: 40; /* Above canvas */
             display: none; 
             flex-direction: column; 
             align-items: center;
-            overflow-y: auto; /* Allow scrolling if cards go down */
-            padding-bottom: 100px; /* Space for bottom elements */
+            overflow-y: auto; /* Allow scrolling for cards */
+            padding-bottom: 150px; /* Space for bottom elements */
         }
 
         .page-title {
@@ -124,8 +123,6 @@
             transform: scale(0.5);
             position: relative;
         }
-
-        /* Visible state handled by animation-fill-mode: forwards */
         
         .player-card.impact { 
             border-color: #fff; 
@@ -138,25 +135,18 @@
             object-fit: cover; 
             margin-bottom: 8px; 
             border-bottom: 1px solid var(--csk-yellow);
-            background: #222; /* Fallback color */
+            background: #222; /* Fallback */
         }
         .impact .player-img { width: 100px; height: 120px; }
 
         .player-role { font-size: 0.6rem; color: var(--csk-yellow); text-transform: uppercase; margin-bottom: 2px; }
         .player-name { font-size: 0.8rem; text-align: center; color: white; text-transform: uppercase; line-height: 1; padding: 0 5px; }
 
-        @keyframes flashCard {
-            0% { box-shadow: 0 0 0 rgba(255, 203, 5, 0); border-color: var(--csk-yellow); }
-            50% { box-shadow: 0 0 50px var(--csk-yellow); border-color: #fff; transform: scale(1.05); }
-            100% { box-shadow: 0 0 10px rgba(255, 203, 5, 0.3); border-color: var(--csk-yellow); transform: scale(1); }
-        }
-        .flash-effect { animation: flashCard 0.5s ease-out; }
-
         /* --- STAGE 3: WHISTLE --- */
         #whistle-stage {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 60; /* Above cards */
+            z-index: 60; /* Topmost layer */
             display: none; flex-direction: column; align-items: center; cursor: pointer;
             background: rgba(0,0,0,0.9); padding: 30px; border-radius: 50%; border: 4px solid var(--csk-yellow);
             box-shadow: 0 0 50px var(--csk-yellow);
@@ -181,9 +171,7 @@
         #video-stage {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 30; display: none; justify-content: center; align-items: center;
-            perspective: 1000px; /* Enable 3D for lightning */
-            overflow: hidden;
-            background: black;
+            perspective: 1000px; overflow: hidden; background: black;
         }
         .video-wrapper {
             width: 60vmin; height: 60vmin;
@@ -191,8 +179,7 @@
             box-shadow: 0 0 50px var(--csk-yellow);
             overflow: hidden;
             z-index: 25; /* Above ring */
-            position: relative;
-            background: black;
+            position: relative; background: black;
         }
         video { width: 100%; height: 100%; object-fit: cover; }
 
@@ -216,36 +203,24 @@
         .year-text {
             color: var(--csk-yellow); font-weight: bold; font-size: 1rem;
             background: var(--csk-blue); padding: 2px 6px; border-radius: 5px;
-            border: 1px solid var(--csk-yellow); margin-top: 5px;
-            white-space: nowrap;
+            border: 1px solid var(--csk-yellow); margin-top: 5px; white-space: nowrap;
         }
 
         /* --- 3D THUNDER --- */
         #thunder-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 50;
-            display: none; /* Hidden until video plays */
-            perspective: 1000px;
-            overflow: hidden;
+            display: none; perspective: 1000px; overflow: hidden;
         }
-
         .lightning-bolt {
-            position: absolute;
-            top: 0; left: 50%;
-            width: 100px; height: 300px;
-            /* Creating a jagged bolt shape */
+            position: absolute; top: 0; left: 50%; width: 100px; height: 300px;
             background: #fff;
             clip-path: polygon(50% 0%, 40% 30%, 60% 30%, 30% 60%, 70% 60%, 20% 100%, 80% 100%, 55% 65%, 75% 65%, 45% 35%, 65% 35%);
             opacity: 0;
             transform: translate(-50%, -100%) scale(2) rotate(10deg);
             filter: drop-shadow(0 0 20px #00BFFF) drop-shadow(0 0 40px #fff);
         }
-
-        /* Thunder Strike Animation */
-        .strike .lightning-bolt {
-            animation: zapStrike 0.3s ease-out forwards;
-        }
-
+        .strike .lightning-bolt { animation: zapStrike 0.3s ease-out forwards; }
         @keyframes zapStrike {
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5) rotate(10deg) translateZ(200px); }
             20% { opacity: 1; transform: translate(-50%, 0) scale(1.2) rotate(-5deg) translateZ(50px); }
@@ -253,17 +228,21 @@
             60% { opacity: 1; transform: translate(-50%, 0) scale(1.2) rotate(5deg) translateZ(20px); }
             100% { opacity: 0; transform: translate(-50%, 50%) scale(0.8) rotate(0deg) translateZ(0); }
         }
-
-        /* Screen Flash for Thunder */
-        .screen-flash {
-            animation: flashBg 0.2s ease-out;
-        }
+        .screen-flash { animation: flashBg 0.2s ease-out; }
         @keyframes flashBg {
             0% { background-color: #000; }
-            10% { background-color: #1a1a4a; } /* Blue tint */
-            50% { background-color: #fff; } /* White flash */
+            10% { background-color: #1a1a4a; }
+            50% { background-color: #fff; }
             100% { background-color: #000; }
         }
+
+        /* --- FLASH & POP ANIMATIONS --- */
+        @keyframes flashCard {
+            0% { box-shadow: 0 0 0 rgba(255, 203, 5, 0); border-color: var(--csk-yellow); }
+            50% { box-shadow: 0 0 50px var(--csk-yellow); border-color: #fff; transform: scale(1.05); }
+            100% { box-shadow: 0 0 10px rgba(255, 203, 5, 0.3); border-color: var(--csk-yellow); transform: scale(1); }
+        }
+        .flash-effect { animation: flashCard 0.5s ease-out; }
 
         @keyframes floatGlow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes pulseText { from { transform: scale(1); } to { transform: scale(1.1); } }
@@ -292,7 +271,6 @@
     <!-- STAGE 1: LOGO -->
     <div class="center-stage" id="logo-stage">
         <div class="logo-container">
-            <!-- If image fails, it just disappears, but circle stays -->
             <img src="csk_custom.png" alt="CSK Logo">
         </div>
         <h1>CHENNAI<br>SUPER KINGS</h1>
@@ -331,9 +309,7 @@
         </div>
 
         <!-- Trophy Ring -->
-        <div class="trophy-ring" id="trophy-ring-container">
-            <!-- Trophy Items injected by JS -->
-        </div>
+        <div class="trophy-ring" id="trophy-ring-container"></div>
 
         <!-- Video -->
         <div class="video-wrapper">
@@ -386,20 +362,15 @@
 
         function playThunder() {
             if (audioCtx.state === 'suspended') { audioCtx.resume(); }
-            // Create white noise buffer
-            const bufferSize = audioCtx.sampleRate * 0.5; // 0.5 seconds
+            const bufferSize = audioCtx.sampleRate * 0.5;
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = Math.random() * 2 - 1;
-            }
+            for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
             const noise = audioCtx.createBufferSource();
             noise.buffer = buffer;
-            
             const gain = audioCtx.createGain();
             gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-
             noise.connect(gain);
             gain.connect(audioCtx.destination);
             noise.start();
@@ -501,10 +472,8 @@
         function createCard(p, index, container, isImpact) {
             const div = document.createElement('div');
             div.className = isImpact ? 'player-card impact' : 'player-card';
-            // Staggered animation delay
             div.style.animationDelay = `${index * 0.1}s`; 
             
-            // Fallback if image is missing
             const fallbackColor = isImpact ? '#333' : '#222';
             
             div.innerHTML = `
@@ -539,12 +508,15 @@
             // 3. Show Whistle
             setTimeout(() => {
                 whistle.style.display = 'flex';
-            }, 3500); // Wait for most cards to appear
+            }, 3500);
         }
 
         let thunderInterval;
 
         function playVideo() {
+            // Resume audio context (browser requirement)
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+
             const whistle = document.getElementById('whistle-stage');
             const cards = document.getElementById('cards-stage');
             const videoStage = document.getElementById('video-stage');
@@ -559,24 +531,21 @@
             video.play();
 
             // Start Thunder Loop
-            triggerThunder(); // Immediate strike
-            thunderInterval = setInterval(triggerThunder, 3500); // Strike every 3.5s
+            triggerThunder();
+            thunderInterval = setInterval(triggerThunder, 3500);
         }
 
         function triggerThunder() {
             const thunderOverlay = document.getElementById('thunder-overlay');
             const body = document.body;
 
-            // 1. Add Strike Animation Class
             thunderOverlay.classList.remove('strike');
-            void thunderOverlay.offsetWidth; // Trigger reflow
+            void thunderOverlay.offsetWidth; 
             thunderOverlay.classList.add('strike');
 
-            // 2. Flash Screen
             body.classList.add('screen-flash');
             setTimeout(() => body.classList.remove('screen-flash'), 200);
 
-            // 3. Play Sound
             playThunder();
         }
 
