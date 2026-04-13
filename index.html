@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSK | Playing XI</title>
+    <title>CSK | Live Scorecard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --csk-yellow: #FFCB05;
             --csk-blue: #001242;
             --stadium-dark: #050505;
+            --stat-green: #00ff88;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -85,13 +86,7 @@
             overflow: hidden; 
         }
 
-        .logo-container img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: contain; 
-            padding: 30px; 
-        }
-        
+        .logo-container img { width: 100%; height: 100%; object-fit: contain; padding: 30px; }
         h1 { font-size: 3.5rem; color: white; text-transform: uppercase; animation: pulseText 1.5s infinite alternate; text-shadow: 2px 2px 0 #000; }
         .tagline { font-size: 1.5rem; color: var(--csk-yellow); letter-spacing: 5px; font-weight: bold; text-shadow: 1px 1px 0 #000; }
 
@@ -191,7 +186,7 @@
 
         .click-hint { margin-top: 20px; color: white; font-size: 1.2rem; animation: pulseText 1s infinite; }
 
-        /* --- STAGE 4: VIDEO (UPDATED LAYOUT) --- */
+        /* --- STAGE 4: VIDEO (UPDATED LAYOUT WITH STATS) --- */
         #video-stage {
             position: absolute;
             top: 0; left: 0;
@@ -205,69 +200,127 @@
             padding-top: 20px;
         }
 
-        /* 1. COMEBACK TITLE */
         .comeback-title {
             font-size: 2.5rem;
             color: var(--csk-yellow);
             z-index: 50;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-shadow: 0 0 10px var(--csk-blue), 0 0 20px var(--csk-yellow);
             letter-spacing: 5px;
             animation: titlePopIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, titleGlitch 2s infinite;
         }
 
-        /* 2. LAYOUT ROW */
         .video-layout-row {
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
             flex: 1; 
-            gap: 20px;
-            padding: 0 20px;
+            gap: 15px;
+            padding: 0 10px;
             z-index: 20;
         }
 
-        /* UPDATED: Side Panels with 2-Column Grid */
+        /* UPDATED: Side Panels with Stats */
         .side-panel {
             display: grid;
             grid-template-columns: 1fr 1fr; /* 2 Cards per line */
-            grid-template-rows: repeat(auto-fill, 100px); /* Fixed height rows */
-            gap: 8px; /* Smaller gap for grid */
+            grid-auto-rows: 130px; /* Taller to fit stats */
+            gap: 8px;
             height: 100%;
-            width: 200px; /* Fixed width to save space for big video */
-            align-content: center; /* Center grid vertically */
+            width: 260px; /* Wider to accommodate text */
+            align-content: center;
             justify-items: center;
+            overflow-y: auto; /* Scroll if too many players */
+            padding: 5px;
         }
 
-        /* UPDATED: Smaller Mini Cards for Grid */
+        /* Scrollbar styling */
+        .side-panel::-webkit-scrollbar { width: 5px; }
+        .side-panel::-webkit-scrollbar-track { background: #001; }
+        .side-panel::-webkit-scrollbar-thumb { background: var(--csk-yellow); border-radius: 3px; }
+
+        /* UPDATED: Stats Card */
         .mini-card {
-            width: 95%; /* Slight gap between grid items */
-            height: 100%; /* Fill grid cell */
-            background: rgba(0, 18, 66, 0.8);
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 18, 66, 0.9);
             border: 1px solid var(--csk-yellow);
             border-radius: 6px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(4px);
-            transition: transform 0.3s;
-            opacity: 0;
+            justify-content: flex-start;
+            padding: 4px;
+            position: relative;
+            transition: all 0.3s;
             animation: slideInSide 0.5s ease-out forwards;
-            padding: 2px;
+            opacity: 0;
+        }
+
+        /* Best Player Highlight */
+        .mini-card.best-player {
+            border: 2px solid #fff;
+            box-shadow: 0 0 15px var(--csk-yellow);
+            background: linear-gradient(135deg, rgba(255,203,5,0.2), #000);
+            z-index: 10;
         }
         
-        .mini-card:hover { transform: scale(1.1); border-color: #fff; z-index: 10; background: var(--csk-blue); }
+        .best-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: red;
+            color: white;
+            font-size: 0.5rem;
+            padding: 2px 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px black;
+            z-index: 15;
+        }
 
-        .mini-card .player-img { width: 35px; height: 40px; margin-bottom: 2px; border: none; }
-        .mini-card .player-role { font-size: 0.4rem; margin: 0; }
-        .mini-card .player-name { font-size: 0.5rem; padding: 0; line-height: 1.1; text-align: center; }
+        .mini-card:hover { transform: scale(1.05); }
 
-        /* UPDATED: Bigger Video Wrapper */
+        .mc-header {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 2px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 2px;
+        }
+
+        .mc-img { width: 25px; height: 30px; object-fit: cover; border-radius: 3px; margin-right: 5px; }
+        .mc-name { font-size: 0.55rem; font-weight: bold; color: white; text-align: left; line-height: 1.1; flex: 1; }
+        .mc-role { font-size: 0.4rem; color: var(--csk-yellow); display: block; text-align: right; }
+
+        .mc-stats {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            padding: 2px;
+            border-radius: 3px;
+        }
+
+        .stat-label { font-size: 0.3rem; color: #aaa; text-transform: uppercase; }
+        .stat-val { font-size: 0.55rem; font-weight: bold; color: var(--csk-yellow); }
+        
+        /* Live update animation */
+        .stat-val.updating { color: var(--stat-green); animation: flash 0.5s; }
+
+        /* Bigger Video Wrapper */
         .video-wrapper {
-            width: 60vmin;  /* Increased size */
-            height: 65vmin; /* Increased size */
+            width: 55vmin;  /* Slightly smaller to fit wider panels */
+            height: 60vmin;
             border: 4px solid var(--csk-yellow);
             box-shadow: 0 0 50px var(--csk-yellow);
             overflow: hidden;
@@ -279,7 +332,7 @@
 
         video { width: 100%; height: 100%; object-fit: cover; }
 
-        /* 3. Vibing Background Effect */
+        /* Vibing Background */
         .vibe-bg {
             position: absolute;
             top: 50%; left: 50%;
@@ -296,16 +349,12 @@
             position: absolute;
             width: 100%; height: 100%;
             z-index: 1;
-            background-image: 
-                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
-                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
-                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
-            background-size: 550px 550px, 350px 350px, 250px 250px;
-            background-position: 0 0, 40px 60px, 130px 270px;
+            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px);
+            background-size: 550px 550px;
             animation: particleMove 60s linear infinite;
         }
 
-        /* 4. Trophy Ticker */
+        /* Trophy Ticker */
         .trophy-bar-container {
             position: absolute;
             bottom: 0;
@@ -353,25 +402,24 @@
         @keyframes floatWhistle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
         
         @keyframes vibeSpin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
-        @keyframes particleMove { from { background-position: 0 0, 40px 60px, 130px 270px; } to { background-position: 550px 550px, 390px 410px, 380px 520px; } }
+        @keyframes particleMove { from { background-position: 0 0; } to { background-position: 550px 550px; } }
         @keyframes videoPulse { 0%, 100% { box-shadow: 0 0 30px var(--csk-yellow); } 50% { box-shadow: 0 0 80px var(--csk-yellow), 0 0 20px white; } }
         @keyframes slideLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
         
         @keyframes titlePopIn { from { opacity: 0; transform: scale(2); } to { opacity: 1; transform: scale(1); } }
         @keyframes titleGlitch { 
             0% { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
-            2% { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
-            4% { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
             5% { text-shadow: -2px 0 var(--csk-blue), 2px 0 var(--csk-yellow); }
             100% { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
         }
         @keyframes slideInSide { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes flash { 0% { color: #fff; } 100% { color: var(--stat-green); } }
 
         /* Mobile Adjustments */
-        @media (max-width: 900px) {
-            .side-panel { display: none; } /* Hide side cards on mobile */
+        @media (max-width: 1000px) {
+            .side-panel { display: none; } /* Hide stats on mobile */
             .video-wrapper { width: 90vw; height: 50vh; }
-            .comeback-title { font-size: 1.5rem; margin-bottom: 50px; } /* Move title up */
+            .comeback-title { font-size: 1.5rem; margin-bottom: 50px; }
         }
     </style>
 </head>
@@ -391,9 +439,7 @@
 
     <!-- STAGE 2: ALL CARDS GRID -->
     <div id="cards-stage">
-        <div class="cards-grid" id="grid-container">
-            <!-- JS will inject cards here -->
-        </div>
+        <div class="cards-grid" id="grid-container"></div>
     </div>
 
     <!-- STAGE 3: WHISTLE INTERACTION -->
@@ -405,30 +451,26 @@
         <div class="click-hint">CLICK TO START</div>
     </div>
 
-    <!-- STAGE 4: VIDEO (NEW LAYOUT) -->
+    <!-- STAGE 4: VIDEO & LIVE STATS -->
     <div id="video-stage">
         <div class="vibe-bg"></div>
         <div class="vibe-particles"></div>
 
-        <div class="comeback-title">COMEBACK CSK</div>
+        <div class="comeback-title">LIVE SCORECARD</div>
 
         <div class="video-layout-row">
-            <!-- Left Side: Grid Layout -->
-            <div class="side-panel" id="side-left">
-                <!-- JS Injected Mini Cards -->
-            </div>
+            <!-- Left Side: Stats -->
+            <div class="side-panel" id="side-left"></div>
 
-            <!-- Center: Bigger Video -->
+            <!-- Center: Video -->
             <div class="video-wrapper">
                 <video id="main-video" playsinline onended="restartAll()">
                     <source src="video.mp4" type="video/mp4">
                 </video>
             </div>
 
-            <!-- Right Side: Grid Layout -->
-            <div class="side-panel" id="side-right">
-                <!-- JS Injected Mini Cards -->
-            </div>
+            <!-- Right Side: Stats -->
+            <div class="side-panel" id="side-right"></div>
         </div>
 
         <!-- Trophy Ticker -->
@@ -496,24 +538,25 @@
             }
         };
 
-        // --- DATA ---
+        // --- DATA WITH STATS (Simulated) ---
+        // Note: In a real app, these values would be fetched from an API
         const players = [
-            { name: "Sanju Samson", role: "WK", img: "player1.png" },
-            { name: "Ayush Mhatre", role: "BAT", img: "player2.png" },
-            { name: "Ruturaj Gaikwad", role: "(C) BAT", img: "player3.png" },
-            { name: "Dewald Brevis", role: "BAT", img: "player4.png" },
-            { name: "Sarfaraz Khan", role: "BAT", img: "player5.png" },
-            { name: "Shivam Dube", role: "AR", img: "player6.png" },
-            { name: "Ramakrishna Ghosh", role: "BWL", img: "player7.png" },
-            { name: "Jamie Overton", role: "AR", img: "player8.png" },
-            { name: "Noor Ahmad", role: "BWL", img: "player9.png" },
-            { name: "Khaleel Ahmed", role: "BWL", img: "player10.png" },
-            { name: "Gurjapneet Singh", role: "BWL", img: "player11.png" }
+            { name: "Sanju Samson", role: "WK", img: "player1.png", stats: { runs: 45, best: 45, fifties: 0, hundreds: 0, wickets: 0, dots: 2, economy: 0 } },
+            { name: "Ayush Mhatre", role: "BAT", img: "player2.png", stats: { runs: 12, best: 12, fifties: 0, hundreds: 0, wickets: 0, dots: 0, economy: 0 } },
+            { name: "Ruturaj Gaikwad", role: "(C) BAT", img: "player3.png", stats: { runs: 98, best: 98, fifties: 1, hundreds: 0, wickets: 0, dots: 5, economy: 0 } },
+            { name: "Dewald Brevis", role: "BAT", img: "player4.png", stats: { runs: 30, best: 30, fifties: 0, hundreds: 0, wickets: 0, dots: 3, economy: 0 } },
+            { name: "Sarfaraz Khan", role: "BAT", img: "player5.png", stats: { runs: 55, best: 55, fifties: 1, hundreds: 0, wickets: 0, dots: 4, economy: 0 } },
+            { name: "Shivam Dube", role: "AR", img: "player6.png", stats: { runs: 22, best: 22, fifties: 0, hundreds: 0, wickets: 1, dots: 10, economy: 8.5 } },
+            { name: "Ramakrishna Ghosh", role: "BWL", img: "player7.png", stats: { runs: 0, best: 0, fifties: 0, hundreds: 0, wickets: 2, dots: 15, economy: 7.2 } },
+            { name: "Jamie Overton", role: "AR", img: "player8.png", stats: { runs: 10, best: 10, fifties: 0, hundreds: 0, wickets: 3, dots: 8, economy: 9.0 } },
+            { name: "Noor Ahmad", role: "BWL", img: "player9.png", stats: { runs: 0, best: 0, fifties: 0, hundreds: 0, wickets: 1, dots: 12, economy: 6.5 } },
+            { name: "Khaleel Ahmed", role: "BWL", img: "player10.png", stats: { runs: 0, best: 0, fifties: 0, hundreds: 0, wickets: 2, dots: 18, economy: 7.8 } },
+            { name: "Gurjapneet Singh", role: "BWL", img: "player11.png", stats: { runs: 0, best: 0, fifties: 0, hundreds: 0, wickets: 1, dots: 10, economy: 8.1 } }
         ];
 
         const impactPlayers = [
-            { name: "Anshul Kamboj", role: "IMPACT", img: "impact1.png" },
-            { name: "Urvil Patel", role: "IMPACT", img: "impact2.png" }
+            { name: "Anshul Kamboj", role: "IMPACT", img: "impact1.png", stats: { runs: 0, best: 0, fifties: 0, hundreds: 0, wickets: 0, dots: 0, economy: 0 } },
+            { name: "Urvil Patel", role: "IMPACT", img: "impact2.png", stats: { runs: 0, best: 0, fifties: 0, hundreds: 0, wickets: 0, dots: 0, economy: 0 } }
         ];
 
         // --- BACKGROUND ANIMATION (Canvas) ---
@@ -602,7 +645,7 @@
             });
         }
 
-        // Function to render cards on sides
+        // NEW: Render Stats Side Panels
         function renderSideCards() {
             const leftContainer = document.getElementById('side-left');
             const rightContainer = document.getElementById('side-right');
@@ -615,20 +658,109 @@
             const leftPlayers = allPlayers.slice(0, midPoint);
             const rightPlayers = allPlayers.slice(midPoint);
 
-            const createMiniCard = (p, index) => {
+            // Identify Best Player (Highest Runs or Wickets)
+            let bestPlayer = null;
+            let maxPerformance = -1;
+
+            allPlayers.forEach(p => {
+                const score = p.stats.runs + (p.stats.wickets * 20); // Simple algorithm: 1 Wicket = 20 Runs
+                if (score > maxPerformance) {
+                    maxPerformance = score;
+                    bestPlayer = p.name;
+                }
+            });
+
+            const createStatCard = (p, index) => {
                 const div = document.createElement('div');
-                div.className = 'mini-card';
-                div.style.animationDelay = `${index * 0.05}s`;
+                const isBest = p.name === bestPlayer;
+                div.className = isBest ? 'mini-card best-player' : 'mini-card';
+                div.id = `stat-card-${p.name.replace(/\s+/g, '')}`; // ID for live updates
+                div.style.animationDelay = `${index * 0.05}s}`;
+
+                // Determine which stats to show based on role
+                let statsHTML = '';
+                if (p.role.includes('BAT') || p.role.includes('WK') || p.role.includes('C')) {
+                    statsHTML = `
+                        <div class="stat-item"><span class="stat-label">RUNS</span><span class="stat-val" id="run-${p.name.replace(/\s+/g, '')}">${p.stats.runs}</span></div>
+                        <div class="stat-item"><span class="stat-label">BEST</span><span class="stat-val">${p.stats.best}</span></div>
+                        <div class="stat-item"><span class="stat-label">50s</span><span class="stat-val">${p.stats.fifties}</span></div>
+                        <div class="stat-item"><span class="stat-label">100s</span><span class="stat-val">${p.stats.hundreds}</span></div>
+                    `;
+                } else if (p.role.includes('BWL') || p.role.includes('AR')) {
+                    statsHTML = `
+                        <div class="stat-item"><span class="stat-label">WKT</span><span class="stat-val" id="wkt-${p.name.replace(/\s+/g, '')}">${p.stats.wickets}</span></div>
+                        <div class="stat-item"><span class="stat-label">ECO</span><span class="stat-val">${p.stats.economy}</span></div>
+                        <div class="stat-item"><span class="stat-label">DOTS</span><span class="stat-val" id="dot-${p.name.replace(/\s+/g, '')}">${p.stats.dots}</span></div>
+                        <div class="stat-item"><span class="stat-label">RUNS</span><span class="stat-val">${p.stats.runs}</span></div>
+                    `;
+                } else {
+                    // Impact Player
+                    statsHTML = `<div class="stat-item" style="grid-column: span 2"><span class="stat-label">STATUS</span><span class="stat-val">SUB</span></div>`;
+                }
+
+                const bestBadge = isBest ? `<div class="best-badge">BEST</div>` : '';
+
                 div.innerHTML = `
-                    <img src="${p.img}" class="player-img" onerror="this.src='https://via.placeholder.com/50?text=IMG'">
-                    <div class="player-role">${p.role}</div>
-                    <div class="player-name">${p.name}</div>
+                    ${bestBadge}
+                    <div class="mc-header">
+                        <img src="${p.img}" class="mc-img" onerror="this.src='https://via.placeholder.com/30?text=IMG'">
+                        <div>
+                            <div class="mc-name">${p.name}</div>
+                            <span class="mc-role">${p.role}</span>
+                        </div>
+                    </div>
+                    <div class="mc-stats">
+                        ${statsHTML}
+                    </div>
                 `;
                 return div;
             };
 
-            leftPlayers.forEach((p, i) => leftContainer.appendChild(createMiniCard(p, i)));
-            rightPlayers.forEach((p, i) => rightContainer.appendChild(createMiniCard(p, i)));
+            leftPlayers.forEach((p, i) => leftContainer.appendChild(createStatCard(p, i)));
+            rightPlayers.forEach((p, i) => rightContainer.appendChild(createStatCard(p, i)));
+        }
+
+        // NEW: Simulate Live Data Updates
+        function simulateLiveUpdates() {
+            // Every 2 seconds, update a random stat
+            setInterval(() => {
+                const allPlayers = [...players, ...impactPlayers];
+                // Pick a random batter to score runs
+                const randomPlayer = allPlayers[Math.floor(Math.random() * allPlayers.length)];
+                const safeName = randomPlayer.name.replace(/\s+/g, '');
+
+                // 30% chance to update Wickets (if bowler)
+                if ((randomPlayer.role.includes('BWL') || randomPlayer.role.includes('AR')) && Math.random() > 0.7) {
+                    const wktEl = document.getElementById(`wkt-${safeName}`);
+                    if (wktEl) {
+                        let current = parseInt(wktEl.innerText);
+                        wktEl.innerText = current + 1;
+                        wktEl.classList.add('updating');
+                        setTimeout(() => wktEl.classList.remove('updating'), 500);
+                    }
+                } 
+                // Otherwise update Runs or Dots
+                else {
+                    const runEl = document.getElementById(`run-${safeName}`);
+                    if (runEl) {
+                        // Add 1, 2, 4, or 6
+                        const runs = [0,1,1,2,4,6][Math.floor(Math.random()*6)];
+                        if (runs > 0) {
+                            let current = parseInt(runEl.innerText);
+                            runEl.innerText = current + runs;
+                            runEl.classList.add('updating');
+                            setTimeout(() => runEl.classList.remove('updating'), 500);
+                        }
+                    } else {
+                        const dotEl = document.getElementById(`dot-${safeName}`);
+                        if(dotEl) {
+                            let current = parseInt(dotEl.innerText);
+                            dotEl.innerText = current + 1;
+                        }
+                    }
+                }
+
+            }, 2000);
         }
 
         function runSequence() {
@@ -663,6 +795,7 @@
                 cards.style.display = 'none';
 
                 renderSideCards();
+                simulateLiveUpdates(); // Start the simulation
 
                 videoStage.style.display = 'flex';
                 video.play().catch(e => console.log("Video play failed:", e));
