@@ -51,15 +51,13 @@
         }
 
         .smoke-explode {
-            /* Changed duration to 2s for smoother transition */
             animation: smokeExpand 2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
         }
 
-        /* --- FIXED ANIMATION --- */
         @keyframes smokeExpand {
             0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            40% { opacity: 1; } /* Fade in */
-            100% { transform: translate(-50%, -50%) scale(300); opacity: 0; } /* CRITICAL FIX: Fade out at end */
+            40% { opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(300); opacity: 0; }
         }
 
         /* --- STAGE 1: LOGO & TEXT --- */
@@ -87,10 +85,8 @@
         }
 
         .logo-container img { width: 85%; height: 85%; object-fit: contain; z-index: 2; }
-        
         .fallback-msg { display: none; color: var(--csk-yellow); font-size: 1.2rem; text-align: center; }
         
-        /* Click prompt for user */
         .click-hint {
             position: absolute;
             bottom: 10%;
@@ -111,11 +107,11 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            display: none; /* Hidden initially */
+            display: none;
             z-index: 20;
             width: 100%;
             height: 100%;
-            pointer-events: none;
+            pointer-events: none; /* Let clicks pass to body */
         }
 
         /* THE BIG VIDEO FRAME */
@@ -143,15 +139,35 @@
             object-fit: cover;
         }
 
+        /* SOUND ICON OVERLAY */
+        .sound-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 30;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
         /* Error message style */
         .video-error-msg {
             color: red;
             font-size: 1.5rem;
             text-align: center;
-            display: none; /* Hidden by default */
+            display: none;
             padding: 20px;
             background: rgba(0,0,0,0.8);
             border-radius: 10px;
+            z-index: 31;
         }
 
         /* THE ROTATING TROPHY RING */
@@ -223,8 +239,6 @@
         </div>
         <h1>CHENNAI<br>SUPER KINGS</h1>
         <div class="tagline">WHISTLE PODU!</div>
-        
-        <!-- Added hint -->
         <div class="click-hint" id="start-hint" style="display:none;">(Click anywhere if video doesn't start)</div>
     </div>
 
@@ -232,12 +246,16 @@
         <div class="trophy-ring" id="trophy-ring-container"></div>
         
         <div class="video-wrapper">
-            <video id="main-video" playsinline>
+            <video id="main-video" playsinline loop>
                 <source src="video.mp4" type="video/mp4">
             </video>
-            <!-- Visible if file is missing -->
+            
+            <!-- Sound Icon Overlay -->
+            <div id="sound-icon" class="sound-overlay">🔇</div>
+
+            <!-- Error Message -->
             <div id="error-display" class="video-error-msg">
-                ERROR:<br>video.mp4 not found!<br>Check file name/extension.
+                ERROR:<br>video.mp4 not found!
             </div>
         </div>
     </div>
@@ -372,22 +390,21 @@
             // 1. Explode Smoke
             smoke.classList.add('smoke-explode');
 
-            // 2. Switch content halfway through (1000ms = 1s for 2s animation)
+            // 2. Switch content halfway through
             setTimeout(() => {
                 logoStage.style.display = 'none';
                 videoStage.style.display = 'block';
                 
-                // Attempt Play
-                video.muted = true; // Ensure muted
+                // Attempt Play (Muted for Autoplay)
+                video.muted = true; 
                 video.play().then(() => {
-                    console.log("Video started automatically");
+                    console.log("Video started (Muted)");
                 }).catch(e => {
                     console.log("Autoplay blocked, waiting for click");
-                    document.getElementById('start-hint').style.display = 'block';
                 });
             }, 1000);
 
-            // 3. Safety fade out (Redundant but safe)
+            // 3. Fade out smoke
             setTimeout(() => {
                 smoke.style.opacity = '0';
             }, 1900);
@@ -407,17 +424,27 @@
             // Auto start after delay
             setTimeout(startVideoSequence, TRANSITION_DELAY);
 
-            // CLICK ANYWHERE TO FORCE START (Fix for Autoplay policies)
+            // GLOBAL CLICK LISTENER
             document.body.addEventListener('click', () => {
                 const video = document.getElementById('main-video');
-                if(video.paused) {
-                    document.getElementById('start-hint').style.display = 'none';
-                    // If we haven't switched stages yet, do it immediately
-                    if(!hasStarted) {
-                        startVideoSequence();
-                    }
-                    video.muted = false; // Unmute on click
-                    video.play();
+                const soundIcon = document.getElementById('sound-icon');
+                
+                // 1. If sequence hasn't started, start it
+                if(!hasStarted) {
+                    startVideoSequence();
+                }
+
+                // 2. Handle Mute/Unmute
+                if (video.muted) {
+                    video.muted = false;
+                    soundIcon.innerHTML = '🔊';
+                    soundIcon.style.opacity = '0'; // Hide icon after unmuting
+                    setTimeout(() => soundIcon.style.display = 'none', 500);
+                } else {
+                    video.muted = true;
+                    soundIcon.innerHTML = '🔇';
+                    soundIcon.style.display = 'flex';
+                    soundIcon.style.opacity = '1';
                 }
             });
         };
