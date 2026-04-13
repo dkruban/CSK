@@ -51,13 +51,15 @@
         }
 
         .smoke-explode {
-            animation: smokeExpand 1.5s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+            /* Changed duration to 2s for smoother transition */
+            animation: smokeExpand 2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
         }
 
+        /* --- FIXED ANIMATION --- */
         @keyframes smokeExpand {
             0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(300); opacity: 1; } 
+            40% { opacity: 1; } /* Fade in */
+            100% { transform: translate(-50%, -50%) scale(300); opacity: 0; } /* CRITICAL FIX: Fade out at end */
         }
 
         /* --- STAGE 1: LOGO & TEXT --- */
@@ -370,7 +372,7 @@
             // 1. Explode Smoke
             smoke.classList.add('smoke-explode');
 
-            // 2. Switch content halfway through
+            // 2. Switch content halfway through (1000ms = 1s for 2s animation)
             setTimeout(() => {
                 logoStage.style.display = 'none';
                 videoStage.style.display = 'block';
@@ -383,13 +385,12 @@
                     console.log("Autoplay blocked, waiting for click");
                     document.getElementById('start-hint').style.display = 'block';
                 });
-            }, 750);
+            }, 1000);
 
-            // 3. Fade out smoke
+            // 3. Safety fade out (Redundant but safe)
             setTimeout(() => {
                 smoke.style.opacity = '0';
-                smoke.style.transition = 'opacity 1s ease';
-            }, 1400);
+            }, 1900);
         }
 
         // Handle Video Errors
@@ -413,7 +414,6 @@
                     document.getElementById('start-hint').style.display = 'none';
                     // If we haven't switched stages yet, do it immediately
                     if(!hasStarted) {
-                        clearTimeout(window.autoStartTimer); // Clear the auto timer if exists
                         startVideoSequence();
                     }
                     video.muted = false; // Unmute on click
