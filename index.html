@@ -106,6 +106,19 @@
             align-items: center;
             padding: 20px;
             box-sizing: border-box;
+            flex-direction: column; /* Allows title to sit above grid */
+        }
+
+        /* ADDED STYLE FOR THE NEW TITLE */
+        .section-title {
+            color: var(--csk-yellow);
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(255, 203, 5, 0.8), 2px 2px 0px #000;
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            letter-spacing: 2px;
         }
 
         .cards-grid {
@@ -391,6 +404,9 @@
 
     <!-- STAGE 2: ALL CARDS GRID -->
     <div id="cards-stage">
+        <!-- ADDED TITLE HERE -->
+        <h2 class="section-title">POWERFULL PLAYING XII</h2>
+        
         <div class="cards-grid" id="grid-container">
             <!-- JS will inject cards here -->
         </div>
