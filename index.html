@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSK | Playing XI</title>
-    <!-- Added FontAwesome for Trophy Icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -192,21 +191,91 @@
 
         .click-hint { margin-top: 20px; color: white; font-size: 1.2rem; animation: pulseText 1s infinite; }
 
-        /* --- STAGE 4: VIDEO (UPDATED) --- */
+        /* --- STAGE 4: VIDEO (UPDATED LAYOUT) --- */
         #video-stage {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
             z-index: 30;
             display: none;
-            justify-content: center;
+            flex-direction: column; /* Vertical stack: Title -> Content -> Ticker */
             align-items: center;
-            flex-direction: column; /* Stack video and trophies */
             background: black;
             overflow: hidden;
+            padding-top: 20px;
         }
 
-        /* 1. Vibing Background Effect */
+        /* 1. COMEBACK TITLE */
+        .comeback-title {
+            font-size: 3rem;
+            color: var(--csk-yellow);
+            z-index: 50;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px var(--csk-blue), 0 0 20px var(--csk-yellow);
+            letter-spacing: 5px;
+            animation: titlePopIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, titleGlitch 2s infinite;
+        }
+
+        /* 2. LAYOUT ROW (Left Cards - Video - Right Cards) */
+        .video-layout-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            flex: 1; /* Take available height */
+            gap: 20px;
+            padding: 0 20px;
+            z-index: 20;
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+            height: 100%;
+            width: 120px; /* Fixed width for side columns */
+        }
+
+        /* Mini Cards for Video Stage */
+        .mini-card {
+            width: 100%;
+            height: 140px; /* Smaller than main cards */
+            background: rgba(0, 18, 66, 0.8);
+            border: 1px solid var(--csk-yellow);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            transition: transform 0.3s;
+            opacity: 0;
+            animation: slideInSide 0.5s ease-out forwards;
+        }
+        
+        .mini-card:hover { transform: scale(1.1); border-color: #fff; z-index: 10; }
+
+        .mini-card .player-img { width: 50px; height: 60px; margin-bottom: 5px; }
+        .mini-card .player-role { font-size: 0.5rem; }
+        .mini-card .player-name { font-size: 0.6rem; padding: 0 2px; }
+
+        /* Center Video Wrapper */
+        .video-wrapper {
+            width: 70vmin; 
+            height: 70vmin;
+            border: 4px solid var(--csk-yellow);
+            box-shadow: 0 0 50px var(--csk-yellow);
+            overflow: hidden;
+            z-index: 10;
+            border-radius: 10px;
+            animation: videoPulse 2s ease-in-out infinite; 
+            background: #000;
+        }
+
+        video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* 3. Vibing Background Effect (Same as before) */
         .vibe-bg {
             position: absolute;
             top: 50%; left: 50%;
@@ -232,28 +301,15 @@
             animation: particleMove 60s linear infinite;
         }
 
-        .video-wrapper {
-            width: 70vmin; height: 70vmin; /* Slightly smaller to fit ticker */
-            border: 4px solid var(--csk-yellow);
-            box-shadow: 0 0 50px var(--csk-yellow);
-            overflow: hidden;
-            z-index: 10;
-            border-radius: 10px;
-            animation: videoPulse 2s ease-in-out infinite; /* New Pulsing Animation */
-        }
-
-        video { width: 100%; height: 100%; object-fit: cover; }
-
-        /* 2. Trophy Ticker Animation */
+        /* 4. Trophy Ticker */
         .trophy-bar-container {
             position: absolute;
-            bottom: 30px;
+            bottom: 0;
             width: 100%;
-            height: 80px;
-            background: rgba(0, 18, 66, 0.8);
+            height: 60px; /* Slightly smaller height */
+            background: rgba(0, 18, 66, 0.9);
             border-top: 2px solid var(--csk-yellow);
-            border-bottom: 2px solid var(--csk-yellow);
-            z-index: 20;
+            z-index: 50;
             display: flex;
             align-items: center;
             overflow: hidden;
@@ -265,7 +321,6 @@
             display: flex;
             align-items: center;
             gap: 80px;
-            /* Animation set to slide left continuously */
             animation: slideLeft 20s linear infinite;
             padding-left: 50px;
         }
@@ -273,22 +328,19 @@
         .trophy-item {
             display: flex;
             align-items: center;
-            gap: 15px;
-            font-size: 1.5rem;
+            gap: 10px;
+            font-size: 1.2rem;
             color: white;
             white-space: nowrap;
         }
 
         .trophy-icon {
             color: var(--csk-yellow);
-            font-size: 2rem;
+            font-size: 1.5rem;
             filter: drop-shadow(0 0 5px var(--csk-yellow));
         }
 
-        .trophy-year {
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(255,255,255,0.5);
-        }
+        .trophy-year { font-weight: bold; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
 
         /* --- ANIMATIONS --- */
         @keyframes floatGlow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -300,16 +352,22 @@
         @keyframes particleMove { from { background-position: 0 0, 40px 60px, 130px 270px; } to { background-position: 550px 550px, 390px 410px, 380px 520px; } }
         @keyframes videoPulse { 0%, 100% { box-shadow: 0 0 30px var(--csk-yellow); } 50% { box-shadow: 0 0 80px var(--csk-yellow), 0 0 20px white; } }
         @keyframes slideLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        
+        @keyframes titlePopIn { from { opacity: 0; transform: scale(2); } to { opacity: 1; transform: scale(1); } }
+        @keyframes titleGlitch { 
+            0% { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
+            2% { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
+            4% { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
+            5% { text-shadow: -2px 0 var(--csk-blue), 2px 0 var(--csk-yellow); }
+            100% { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
+        }
+        @keyframes slideInSide { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
 
-        @media (max-width: 600px) {
-            .player-card { width: 100px; height: 150px; }
-            .player-img { width: 60px; height: 70px; }
-            .player-name { font-size: 0.6rem; }
-            .logo-container { width: 200px; height: 200px; }
-            h1 { font-size: 2rem; }
+        /* Mobile Adjustments */
+        @media (max-width: 900px) {
+            .side-panel { display: none; } /* Hide side cards on smaller screens to save space for video */
             .video-wrapper { width: 90vw; height: 50vh; }
-            .trophy-year { font-size: 1rem; }
-            .trophy-icon { font-size: 1.5rem; }
+            .comeback-title { font-size: 2rem; }
         }
     </style>
 </head>
@@ -343,23 +401,38 @@
         <div class="click-hint">CLICK TO START</div>
     </div>
 
-    <!-- STAGE 4: VIDEO (ENHANCED) -->
+    <!-- STAGE 4: VIDEO (NEW LAYOUT) -->
     <div id="video-stage">
-        <!-- New: Vibing Background Effects -->
+        <!-- Vibing Backgrounds -->
         <div class="vibe-bg"></div>
         <div class="vibe-particles"></div>
 
-        <!-- Video Wrapper -->
-        <div class="video-wrapper">
-            <video id="main-video" playsinline onended="restartAll()">
-                <source src="video.mp4" type="video/mp4">
-            </video>
+        <!-- New Title -->
+        <div class="comeback-title">COMEBACK CSK</div>
+
+        <!-- New Layout Row -->
+        <div class="video-layout-row">
+            <!-- Left Side: Half Players -->
+            <div class="side-panel" id="side-left">
+                <!-- JS Injected Mini Cards -->
+            </div>
+
+            <!-- Center: Video -->
+            <div class="video-wrapper">
+                <video id="main-video" playsinline onended="restartAll()">
+                    <source src="video.mp4" type="video/mp4">
+                </video>
+            </div>
+
+            <!-- Right Side: Remaining Players -->
+            <div class="side-panel" id="side-right">
+                <!-- JS Injected Mini Cards -->
+            </div>
         </div>
 
-        <!-- New: Trophy Ticker Animation -->
+        <!-- Trophy Ticker -->
         <div class="trophy-bar-container">
             <div class="trophy-track">
-                <!-- We duplicate the list to ensure smooth infinite scrolling -->
                 <!-- Set 1 -->
                 <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2010</span></div>
                 <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2011</span></div>
@@ -367,8 +440,7 @@
                 <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2021</span></div>
                 <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2023</span></div>
                 <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2024</span></div>
-                
-                <!-- Set 2 (Duplicate for loop) -->
+                <!-- Set 2 (Duplicate) -->
                 <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2010</span></div>
                 <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2011</span></div>
                 <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2018</span></div>
@@ -386,55 +458,40 @@
         const SoundFX = {
             playWhistle: function() {
                 if (audioCtx.state === 'suspended') audioCtx.resume();
-                
                 const t = audioCtx.currentTime;
                 const oscillator = audioCtx.createOscillator();
                 const gainNode = audioCtx.createGain();
-                
                 oscillator.type = 'sine';
                 oscillator.frequency.setValueAtTime(2000, t);
                 oscillator.frequency.linearRampToValueAtTime(2300, t + 0.1);
                 oscillator.frequency.linearRampToValueAtTime(2200, t + 0.3);
-                
                 gainNode.gain.setValueAtTime(0, t);
                 gainNode.gain.linearRampToValueAtTime(0.5, t + 0.05);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, t + 1.5);
-                
                 oscillator.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
-                
                 oscillator.start(t);
                 oscillator.stop(t + 1.5);
             },
-
             playCardAssembly: function() {
                 if (audioCtx.state === 'suspended') audioCtx.resume();
-
                 const t = audioCtx.currentTime;
                 const bufferSize = audioCtx.sampleRate * 1.5; 
                 const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 const data = buffer.getChannelData(0);
-
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = Math.random() * 2 - 1;
-                }
-
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
                 const noise = audioCtx.createBufferSource();
                 noise.buffer = buffer;
-
                 const filter = audioCtx.createBiquadFilter();
                 filter.type = 'lowpass';
                 filter.frequency.setValueAtTime(800, t);
                 filter.frequency.linearRampToValueAtTime(100, t + 1.0);
-
                 const gainNode = audioCtx.createGain();
                 gainNode.gain.setValueAtTime(0.5, t);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, t + 1.0);
-
                 noise.connect(filter);
                 filter.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
-
                 noise.start(t);
             }
         };
@@ -536,7 +593,6 @@
                 const isImpact = index >= players.length;
                 div.className = isImpact ? 'player-card impact' : 'player-card';
                 div.style.animationDelay = `${index * 0.1}s`; 
-                
                 div.innerHTML = `
                     <img src="${p.img}" class="player-img" onerror="this.src='https://via.placeholder.com/100?text=IMG'">
                     <div class="player-role">${p.role}</div>
@@ -546,23 +602,50 @@
             });
         }
 
+        // NEW: Function to render cards on sides of video
+        function renderSideCards() {
+            const leftContainer = document.getElementById('side-left');
+            const rightContainer = document.getElementById('side-right');
+            leftContainer.innerHTML = '';
+            rightContainer.innerHTML = '';
+
+            const allPlayers = [...players, ...impactPlayers];
+            const midPoint = Math.ceil(allPlayers.length / 2);
+
+            const leftPlayers = allPlayers.slice(0, midPoint);
+            const rightPlayers = allPlayers.slice(midPoint);
+
+            // Helper to create mini card
+            const createMiniCard = (p, index) => {
+                const div = document.createElement('div');
+                div.className = 'mini-card';
+                div.style.animationDelay = `${index * 0.1}s`;
+                div.innerHTML = `
+                    <img src="${p.img}" class="player-img" onerror="this.src='https://via.placeholder.com/50?text=IMG'">
+                    <div class="player-role">${p.role}</div>
+                    <div class="player-name">${p.name}</div>
+                `;
+                return div;
+            };
+
+            leftPlayers.forEach((p, i) => leftContainer.appendChild(createMiniCard(p, i)));
+            rightPlayers.forEach((p, i) => rightContainer.appendChild(createMiniCard(p, i)));
+        }
+
         function runSequence() {
             const logo = document.getElementById('logo-stage');
             const smoke = document.getElementById('smoke-overlay');
             const cards = document.getElementById('cards-stage');
             const whistle = document.getElementById('whistle-stage');
 
-            // 1. Explode Smoke
             smoke.classList.add('smoke-explode');
 
-            // 2. Switch to Cards (Grid)
             setTimeout(() => {
                 logo.style.display = 'none';
                 cards.style.display = 'flex';
                 SoundFX.playCardAssembly();
             }, 1000);
 
-            // 3. Show Whistle
             setTimeout(() => {
                 whistle.style.display = 'flex';
             }, 4000);
@@ -574,21 +657,21 @@
             const videoStage = document.getElementById('video-stage');
             const video = document.getElementById('main-video');
 
-            // Play Whistle Sound
             SoundFX.playWhistle();
 
             setTimeout(() => {
                 whistle.style.display = 'none';
                 cards.style.display = 'none';
 
-                // Show Video
+                // NEW: Render side cards before showing stage
+                renderSideCards();
+
                 videoStage.style.display = 'flex';
                 video.play().catch(e => console.log("Video play failed:", e));
             }, 500);
         }
 
         function restartAll() {
-            // Reload page to come back to starting page
             location.reload();
         }
 
@@ -597,9 +680,7 @@
             resize();
             animate();
             initCards();
-
             document.getElementById('whistle-stage').addEventListener('click', playVideo);
-
             setTimeout(runSequence, 4000);
         };
     </script>
