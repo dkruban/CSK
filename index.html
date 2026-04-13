@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSK | Playing XI</title>
+    <title>CSK | Power XI</title>
     <style>
         :root {
             --csk-yellow: #FFCB05;
@@ -16,7 +16,7 @@
         body {
             background-color: var(--stadium-dark);
             color: white;
-            overflow: hidden;
+            overflow-y: auto; /* Allow scrolling if cards are tall */
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -27,7 +27,7 @@
 
         /* --- BACKGROUND --- */
         #stadium-canvas {
-            position: absolute;
+            position: fixed; /* Fixed to not scroll with cards */
             top: 0;
             left: 0;
             width: 100%;
@@ -81,23 +81,54 @@
             box-shadow: 0 0 100px rgba(255, 203, 5, 0.2);
             margin-bottom: 20px;
             animation: floatGlow 4s ease-in-out infinite;
+            overflow: hidden; /* KEY FIX: Crops image to circle */
+            position: relative;
         }
-        .logo-container img { width: 85%; height: 85%; object-fit: contain; }
+        
+        .logo-container img { 
+            width: 85%; 
+            height: 85%; 
+            object-fit: contain; /* KEY FIX: Keeps aspect ratio */
+            position: relative;
+            z-index: 2;
+        }
         
         h1 { font-size: 3.5rem; color: white; text-transform: uppercase; animation: pulseText 1.5s infinite alternate; text-shadow: 2px 2px 0 #000; }
         .tagline { font-size: 1.5rem; color: var(--csk-yellow); letter-spacing: 5px; font-weight: bold; text-shadow: 1px 1px 0 #000; }
 
-        /* --- STAGE 2: CARDS GRID --- */
+        /* --- STAGE 2: CARDS PAGE --- */
         #cards-stage {
-            position: absolute;
+            position: fixed; /* Fixed position, but allow inner scrolling */
             top: 0; left: 0;
             width: 100%; height: 100%;
             z-index: 40;
             display: none;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             padding: 20px;
+            overflow-y: auto;
             box-sizing: border-box;
+        }
+
+        .page-title {
+            color: var(--csk-yellow);
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px var(--csk-yellow);
+            text-align: center;
+            border-bottom: 2px solid var(--csk-yellow);
+            padding-bottom: 10px;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1.5rem;
+            margin: 20px 0 10px 0;
+            width: 100%;
+            text-align: left;
+            border-left: 5px solid var(--csk-yellow);
+            padding-left: 10px;
         }
 
         .cards-grid {
@@ -105,7 +136,9 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 15px;
+            width: 100%;
             max-width: 1200px;
+            margin-bottom: 20px;
         }
 
         .player-card {
@@ -120,37 +153,57 @@
             justify-content: center;
             box-shadow: 0 0 10px rgba(255, 203, 5, 0.3);
             animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            opacity: 0; /* Start hidden */
+            opacity: 0;
             position: relative;
+            transform-style: preserve-3d;
         }
 
-        .player-card.impact { border-color: #fff; box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
+        /* Separate Style for Impact Players */
+        .player-card.impact { 
+            border-color: #fff; 
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); 
+            width: 160px; /* Slightly larger */
+            height: 220px;
+        }
 
         .player-img { width: 80px; height: 100px; object-fit: cover; margin-bottom: 8px; border-bottom: 1px solid var(--csk-yellow); }
+        .impact .player-img { width: 100px; height: 120px; }
+
         .player-role { font-size: 0.6rem; color: var(--csk-yellow); text-transform: uppercase; margin-bottom: 2px; }
         .player-name { font-size: 0.8rem; text-align: center; color: white; text-transform: uppercase; line-height: 1; padding: 0 5px; }
 
+        /* Flash Animation */
+        @keyframes flashCard {
+            0% { box-shadow: 0 0 0 rgba(255, 203, 5, 0); border-color: var(--csk-yellow); }
+            50% { box-shadow: 0 0 50px var(--csk-yellow); border-color: #fff; transform: scale(1.05); }
+            100% { box-shadow: 0 0 10px rgba(255, 203, 5, 0.3); border-color: var(--csk-yellow); transform: scale(1); }
+        }
+        
+        .flash-effect {
+            animation: flashCard 0.5s ease-out;
+        }
+
         /* --- STAGE 3: WHISTLE --- */
         #whistle-stage {
-            position: absolute;
+            position: fixed;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 60; /* Above cards */
+            z-index: 60;
             display: none;
             flex-direction: column;
             align-items: center;
             cursor: pointer;
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--csk-yellow);
         }
 
-        /* 3D CSS Whistle */
         .whistle-container {
-            width: 120px;
-            height: 120px;
+            width: 120px; height: 120px;
             position: relative;
-            transform-style: preserve-3d;
             animation: floatWhistle 2s ease-in-out infinite;
         }
-
         .whistle-body {
             width: 80px; height: 35px;
             background: linear-gradient(to bottom, #FFD700, #FFCB05, #B8860B);
@@ -160,32 +213,20 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.5);
             z-index: 2;
         }
-        /* Mouthpiece */
         .whistle-body::before {
-            content: ''; position: absolute;
-            width: 30px; height: 20px;
-            background: #FFCB05;
-            left: -25px; top: 8px;
-            border-radius: 5px 0 0 5px;
-            box-shadow: inset -5px 0 5px rgba(0,0,0,0.2);
+            content: ''; position: absolute; width: 30px; height: 20px;
+            background: #FFCB05; left: -25px; top: 8px; border-radius: 5px 0 0 5px;
         }
-        /* Ring */
         .whistle-ring {
-            width: 30px; height: 30px;
-            border: 6px solid #FFCB05;
-            border-radius: 50%;
-            position: absolute;
-            right: -10px; top: 50%;
-            transform: translateY(-50%) rotateX(60deg);
+            width: 30px; height: 30px; border: 6px solid #FFCB05; border-radius: 50%;
+            position: absolute; right: -10px; top: 50%; transform: translateY(-50%) rotateX(60deg);
             z-index: 1;
-            box-shadow: 0 5px 5px rgba(0,0,0,0.5);
         }
-
         .click-hint { margin-top: 20px; color: white; font-size: 1.2rem; animation: pulseText 1s infinite; }
 
         /* --- STAGE 4: VIDEO --- */
         #video-stage {
-            position: absolute;
+            position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
             z-index: 30;
@@ -194,17 +235,14 @@
             align-items: center;
             background: black;
         }
-
         .video-wrapper {
             width: 80vmin; height: 80vmin;
             border: 5px solid var(--csk-yellow);
             box-shadow: 0 0 50px var(--csk-yellow);
             overflow: hidden;
         }
-
         video { width: 100%; height: 100%; object-fit: cover; }
 
-        /* --- ANIMATIONS --- */
         @keyframes floatGlow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes pulseText { from { transform: scale(1); } to { transform: scale(1.1); } }
         @keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
@@ -212,7 +250,9 @@
 
         @media (max-width: 600px) {
             .player-card { width: 100px; height: 150px; }
+            .impact { width: 110px; height: 170px; }
             .player-img { width: 60px; height: 70px; }
+            .impact .player-img { width: 70px; height: 90px; }
             .player-name { font-size: 0.6rem; }
             .logo-container { width: 200px; height: 200px; }
             h1 { font-size: 2rem; }
@@ -233,14 +273,22 @@
         <div class="tagline">WHISTLE PODU!</div>
     </div>
 
-    <!-- STAGE 2: ALL CARDS GRID -->
+    <!-- STAGE 2: CARDS PAGE -->
     <div id="cards-stage">
-        <div class="cards-grid" id="grid-container">
-            <!-- JS will inject cards here -->
+        <h1 class="page-title">POWER CSK FULL XI</h1>
+        
+        <div class="cards-grid" id="main-grid">
+            <!-- Main XI injected here -->
+        </div>
+
+        <h2 class="section-title">IMPACT SUBSTITUTES</h2>
+        
+        <div class="cards-grid" id="impact-grid">
+            <!-- Impact players injected here -->
         </div>
     </div>
 
-    <!-- STAGE 3: WHISTLE INTERACTION -->
+    <!-- STAGE 3: WHISTLE -->
     <div id="whistle-stage" onclick="playVideo()">
         <div class="whistle-container">
             <div class="whistle-body"></div>
@@ -252,7 +300,6 @@
     <!-- STAGE 4: VIDEO -->
     <div id="video-stage">
         <div class="video-wrapper">
-            <!-- onended triggers the reload -->
             <video id="main-video" playsinline onended="restartAll()">
                 <source src="video.mp4" type="video/mp4">
             </video>
@@ -280,7 +327,31 @@
             { name: "Urvil Patel", role: "IMPACT", img: "impact2.png" }
         ];
 
-        // --- BACKGROUND ANIMATION (Canvas) ---
+        // --- SOUND SYSTEM (Web Audio API - No files needed) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playBlip() {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = 'sine'; // Sound type
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime); // Start pitch
+            osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1); // Drop pitch
+            
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); // Volume
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); // Fade out
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        // --- BACKGROUND ANIMATION ---
         const canvas = document.getElementById('stadium-canvas');
         const ctx = canvas.getContext('2d');
         let width, height, spectators = [], confetti = [], time = 0;
@@ -348,22 +419,37 @@
         // --- LOGIC ---
 
         function initCards() {
-            const grid = document.getElementById('grid-container');
-            let allPlayers = [...players, ...impactPlayers];
+            const mainGrid = document.getElementById('main-grid');
+            const impactGrid = document.getElementById('impact-grid');
             
-            allPlayers.forEach((p, index) => {
-                const div = document.createElement('div');
-                const isImpact = index >= players.length;
-                div.className = isImpact ? 'player-card impact' : 'player-card';
-                div.style.animationDelay = `${index * 0.1}s`; // Staggered pop-in
-                
-                div.innerHTML = `
-                    <img src="${p.img}" class="player-img" onerror="this.src='https://via.placeholder.com/100?text=IMG'">
-                    <div class="player-role">${p.role}</div>
-                    <div class="player-name">${p.name}</div>
-                `;
-                grid.appendChild(div);
+            // Render Main XI
+            players.forEach((p, index) => {
+                createCard(p, index, mainGrid, false);
             });
+
+            // Render Impact Players (Start index after main)
+            impactPlayers.forEach((p, index) => {
+                createCard(p, index + players.length, impactGrid, true);
+            });
+        }
+
+        function createCard(p, index, container, isImpact) {
+            const div = document.createElement('div');
+            div.className = isImpact ? 'player-card impact' : 'player-card';
+            div.style.animationDelay = `${index * 0.15}s`; // Staggered delay
+            
+            div.innerHTML = `
+                <img src="${p.img}" class="player-img" onerror="this.src='https://via.placeholder.com/100?text=IMG'">
+                <div class="player-role">${p.role}</div>
+                <div class="player-name">${p.name}</div>
+            `;
+            container.appendChild(div);
+
+            // Schedule Sound and Flash
+            setTimeout(() => {
+                playBlip();
+                div.classList.add('flash-effect');
+            }, index * 150); // Matches animation delay roughly
         }
 
         function runSequence() {
@@ -375,16 +461,17 @@
             // 1. Explode Smoke
             smoke.classList.add('smoke-explode');
 
-            // 2. Switch to Cards (Grid)
+            // 2. Switch to Cards
             setTimeout(() => {
                 logo.style.display = 'none';
                 cards.style.display = 'flex';
             }, 1000);
 
-            // 3. Show Whistle after 3 seconds of looking at cards
+            // 3. Show Whistle (Wait for cards to finish appearing roughly)
+            // 11 players + 2 impact = 13 cards * 0.15s delay ≈ 2s. Add buffer.
             setTimeout(() => {
                 whistle.style.display = 'flex';
-            }, 4000);
+            }, 3000);
         }
 
         function playVideo() {
@@ -393,17 +480,13 @@
             const videoStage = document.getElementById('video-stage');
             const video = document.getElementById('main-video');
 
-            // Hide UI
             whistle.style.display = 'none';
             cards.style.display = 'none';
-
-            // Show Video
             videoStage.style.display = 'flex';
             video.play();
         }
 
         function restartAll() {
-            // Reload page to start fresh
             location.reload();
         }
 
@@ -412,8 +495,6 @@
             resize();
             animate();
             initCards();
-
-            // Start Sequence after 4 seconds
             setTimeout(runSequence, 4000);
         };
     </script>
