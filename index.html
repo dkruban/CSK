@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- IMPORTANT: This ensures mobile browsers respect the scaling -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CSK | Playing XI - Whistle Podu!</title>
+    <title>CSK | Playing XI - Auto Landscape</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -17,13 +18,15 @@
         body {
             background-color: var(--stadium-dark);
             color: white;
-            overflow: hidden;
+            overflow: hidden; /* Prevents scrollbars during rotation */
             width: 100vw;
             height: 100vh;
             font-family: 'Arial Black', sans-serif;
             cursor: default;
         }
 
+        /* --- AUTO LANDSCAPE WRAPPER --- */
+        /* This wrapper handles the automatic rotation for mobile portrait mode */
         #app-wrapper {
             width: 100%;
             height: 100%;
@@ -33,69 +36,40 @@
             transition: transform 0.3s ease;
         }
 
+        /* If the device is in Portrait (Vertical), rotate the content 90deg */
         @media screen and (orientation: portrait) {
             #app-wrapper {
                 position: absolute;
                 top: 0;
-                left: 100vw;
-                width: 100vh;
-                height: 100vw;
-                transform: rotate(-90deg);
+                left: 100vw; /* Move to the right edge because we rotate */
+                width: 100vh; /* Width becomes screen height */
+                height: 100vw; /* Height becomes screen width */
+                transform: rotate(-90deg); /* Rotate counter-clockwise */
                 transform-origin: top left;
                 background-color: var(--stadium-dark);
                 z-index: 1000;
             }
+            /* Hide body background to prevent bleeding */
             body { background: black; }
         }
 
-        /* ========== BACKGROUND ========== */
+        /* --- BACKGROUND --- */
         #stadium-canvas {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 1;
         }
 
-        /* ========== LASER BEAMS ========== */
-        #laser-overlay {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 2;
-            pointer-events: none;
-            display: none;
-        }
-
-        .laser {
-            position: absolute;
-            bottom: 0;
-            width: 3px;
-            height: 0;
-            border-radius: 3px;
-            animation: laserShoot 1.5s ease-out forwards;
-            transform-origin: bottom center;
-        }
-
-        @keyframes laserShoot {
-            0%   { height: 0; opacity: 1; }
-            60%  { height: 80vh; opacity: 1; }
-            100% { height: 80vh; opacity: 0; }
-        }
-
-        /* ========== FIREWORKS CANVAS ========== */
-        #fireworks-canvas {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 3;
-            pointer-events: none;
-        }
-
-        /* ========== SMOKE ========== */
+        /* --- SMOKE --- */
         #smoke-overlay {
             position: fixed;
-            top: 50%; left: 50%;
-            width: 10px; height: 10px;
+            top: 50%;
+            left: 50%;
+            width: 10px;
+            height: 10px;
             background: radial-gradient(circle, #ffffff 0%, var(--csk-yellow) 40%, transparent 70%);
             border-radius: 50%;
             transform: translate(-50%, -50%) scale(0);
@@ -108,29 +82,12 @@
         }
 
         @keyframes smokeExpand {
-            0%   { transform: translate(-50%,-50%) scale(0); opacity: 0; }
-            40%  { opacity: 1; }
-            100% { transform: translate(-50%,-50%) scale(300); opacity: 0; }
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            40% { opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(300); opacity: 0; }
         }
 
-        /* ========== TROPHY RAIN ========== */
-        .trophy-rain-item {
-            position: absolute;
-            top: -60px;
-            font-size: 2rem;
-            animation: trophyFall linear forwards;
-            z-index: 5;
-            pointer-events: none;
-            filter: drop-shadow(0 0 8px var(--csk-yellow));
-        }
-
-        @keyframes trophyFall {
-            0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
-            80%  { opacity: 1; }
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-        }
-
-        /* ========== STAGE 1: LOGO ========== */
+        /* --- STAGE 1: LOGO --- */
         .center-stage {
             position: relative;
             z-index: 50;
@@ -144,104 +101,45 @@
         }
 
         .logo-container {
-            width: 35vmin;
+            width: 35vmin; /* Responsive size based on viewport */
             height: 35vmin;
-            background: rgba(0,18,66,0.9);
+            background: rgba(0, 18, 66, 0.9);
             border: 5px solid var(--csk-yellow);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 0 100px rgba(255,203,5,0.2);
+            box-shadow: 0 0 100px rgba(255, 203, 5, 0.2);
             margin-bottom: 4vmin;
             animation: floatGlow 4s ease-in-out infinite;
-            overflow: hidden;
-            position: relative;
+            overflow: hidden; 
         }
 
-        /* spinning ring around logo */
-        .logo-container::before {
-            content: '';
-            position: absolute;
-            inset: -8px;
-            border-radius: 50%;
-            border: 3px solid transparent;
-            border-top-color: var(--csk-yellow);
-            border-right-color: var(--csk-yellow);
-            animation: spinRing 2s linear infinite;
+        .logo-container img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+            padding: 5vmin; 
         }
-
-        @keyframes spinRing {
-            from { transform: rotate(0deg); }
-            to   { transform: rotate(360deg); }
-        }
-
-        .logo-container img {
-            width: 100%; height: 100%;
-            object-fit: contain;
-            padding: 5vmin;
-        }
-
-        h1 {
-            font-size: 6vmin;
-            color: white;
-            text-transform: uppercase;
-            animation: pulseText 1.5s infinite alternate;
-            text-shadow: 2px 2px 0 #000;
+        
+        h1 { 
+            font-size: 6vmin; 
+            color: white; 
+            text-transform: uppercase; 
+            animation: pulseText 1.5s infinite alternate; 
+            text-shadow: 2px 2px 0 #000; 
             line-height: 1.1;
         }
-
-        .tagline {
-            font-size: 3vmin;
-            color: var(--csk-yellow);
-            letter-spacing: 5px;
-            font-weight: bold;
-            text-shadow: 1px 1px 0 #000;
+        .tagline { 
+            font-size: 3vmin; 
+            color: var(--csk-yellow); 
+            letter-spacing: 5px; 
+            font-weight: bold; 
+            text-shadow: 1px 1px 0 #000; 
             margin-top: 10px;
         }
 
-        /* ========== COUNTDOWN ========== */
-        #countdown-bar {
-            position: absolute;
-            bottom: 8%;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 60;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .countdown-track {
-            width: 50vmin;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .countdown-fill {
-            height: 100%;
-            background: var(--csk-yellow);
-            border-radius: 3px;
-            animation: countdownFill 4s linear forwards;
-            box-shadow: 0 0 10px var(--csk-yellow);
-        }
-
-        @keyframes countdownFill {
-            from { width: 0%; }
-            to   { width: 100%; }
-        }
-
-        .countdown-text {
-            font-size: 2vmin;
-            color: rgba(255,255,255,0.4);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
-
-        /* ========== STAGE 2: CARDS ========== */
+        /* --- STAGE 2: CARDS GRID --- */
         #cards-stage {
             position: absolute;
             top: 0; left: 0;
@@ -257,12 +155,12 @@
 
         .section-title {
             color: var(--csk-yellow);
-            font-size: 4vmin;
+            font-size: 4vmin; /* Responsive font */
             text-transform: uppercase;
             text-align: center;
             margin-bottom: 4vmin;
-            text-shadow: 0 0 10px rgba(255,203,5,0.8), 2px 2px 0px #000;
-            animation: popIn 0.8s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
+            text-shadow: 0 0 10px rgba(255, 203, 5, 0.8), 2px 2px 0px #000;
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             letter-spacing: 2px;
         }
 
@@ -270,12 +168,13 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 2vmin;
+            gap: 2vmin; /* Responsive gap */
             max-width: 90%;
         }
 
         .player-card {
-            width: 16vmin;
+            /* Responsive sizing for cards */
+            width: 16vmin; 
             height: 24vmin;
             background: linear-gradient(135deg, var(--csk-blue), #000);
             border: 2px solid var(--csk-yellow);
@@ -284,43 +183,19 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 10px rgba(255,203,5,0.3);
-            animation: cardFlip 0.6s cubic-bezier(0.175,0.885,0.32,1.275) forwards;
-            opacity: 0;
+            box-shadow: 0 0 10px rgba(255, 203, 5, 0.3);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0; 
             position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
         }
 
-        .player-card:hover {
-            transform: scale(1.1) translateY(-5px);
-            box-shadow: 0 0 30px rgba(255,203,5,0.6);
-            z-index: 10;
-        }
-
-        @keyframes cardFlip {
-            0%   { opacity: 0; transform: rotateY(90deg) scale(0.5); }
-            60%  { transform: rotateY(-10deg) scale(1.05); }
-            100% { opacity: 1; transform: rotateY(0deg) scale(1); }
-        }
-
-        .player-card.impact { border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.5); }
-
-        /* card number badge */
-        .card-num {
-            position: absolute;
-            top: 4px; left: 6px;
-            font-size: 1.4vmin;
-            color: var(--csk-yellow);
-            opacity: 0.5;
-            font-weight: bold;
-        }
+        .player-card.impact { border-color: #fff; box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
 
         .player-img { width: 50%; height: 50%; object-fit: cover; margin-bottom: 5%; border-bottom: 1px solid var(--csk-yellow); }
         .player-role { font-size: 1.5vmin; color: var(--csk-yellow); text-transform: uppercase; margin-bottom: 2px; }
         .player-name { font-size: 2vmin; text-align: center; color: white; text-transform: uppercase; line-height: 1.1; padding: 0 5px; }
 
-        /* ========== STAGE 3: WHISTLE ========== */
+        /* --- STAGE 3: WHISTLE --- */
         #whistle-stage {
             position: absolute;
             top: 50%; left: 50%;
@@ -335,25 +210,9 @@
 
         #whistle-stage:active { transform: translate(-50%, -50%) scale(0.95); }
 
-        /* pulse rings around whistle */
-        .whistle-pulse {
-            position: absolute;
-            width: 20vmin; height: 20vmin;
-            border: 2px solid rgba(255,203,5,0.4);
-            border-radius: 50%;
-            animation: pulseRing 1.8s ease-out infinite;
-        }
-
-        .whistle-pulse:nth-child(2) { animation-delay: .6s; }
-        .whistle-pulse:nth-child(3) { animation-delay: 1.2s; }
-
-        @keyframes pulseRing {
-            0%   { transform: scale(0.5); opacity: 1; }
-            100% { transform: scale(2.5); opacity: 0; }
-        }
-
         .whistle-container {
-            width: 15vmin; height: 15vmin;
+            width: 15vmin;
+            height: 15vmin;
             position: relative;
             transform-style: preserve-3d;
             animation: floatWhistle 2s ease-in-out infinite;
@@ -368,17 +227,14 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.5);
             z-index: 2;
         }
-
         .whistle-body::before {
-            content: '';
-            position: absolute;
+            content: ''; position: absolute;
             width: 40%; height: 60%;
             background: #FFCB05;
             left: -30%; top: 20%;
             border-radius: 5px 0 0 5px;
             box-shadow: inset -5px 0 5px rgba(0,0,0,0.2);
         }
-
         .whistle-ring {
             width: 40%; height: 40%;
             border: 6px solid #FFCB05;
@@ -390,35 +246,16 @@
             box-shadow: 0 5px 5px rgba(0,0,0,0.5);
         }
 
-        .click-hint {
-            margin-top: 20px;
-            color: white;
-            font-size: 2.5vmin;
-            animation: pulseText 1s infinite;
-            letter-spacing: 3px;
-        }
+        .click-hint { margin-top: 20px; color: white; font-size: 2.5vmin; animation: pulseText 1s infinite; }
 
-        /* bounce arrow hint */
-        .click-arrow {
-            font-size: 2vmin;
-            color: var(--csk-yellow);
-            animation: bounceArrow .7s ease-in-out infinite alternate;
-            margin-top: 5px;
-        }
-
-        @keyframes bounceArrow {
-            from { transform: translateY(0); }
-            to   { transform: translateY(8px); }
-        }
-
-        /* ========== STAGE 4: VIDEO ========== */
+        /* --- STAGE 4: VIDEO --- */
         #video-stage {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
             z-index: 30;
             display: none;
-            flex-direction: column;
+            flex-direction: column; 
             align-items: center;
             background: black;
             overflow: hidden;
@@ -432,7 +269,7 @@
             margin-bottom: 2vh;
             text-shadow: 0 0 10px var(--csk-blue), 0 0 20px var(--csk-yellow);
             letter-spacing: 5px;
-            animation: titlePopIn 1s cubic-bezier(0.175,0.885,0.32,1.275) forwards, titleGlitch 2s infinite;
+            animation: titlePopIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, titleGlitch 2s infinite;
         }
 
         .video-layout-row {
@@ -440,42 +277,52 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            flex: 1;
+            flex: 1; 
             gap: 2vmin;
             padding: 0 2vmin;
             z-index: 20;
         }
 
+        /* Side Panels: Hide on very small screens, show on larger mobiles/tablets */
         .side-panel {
-            display: none;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: repeat(auto-fill, 10vmin);
-            gap: 1vmin;
+            display: none; /* Default hidden for safety on small phones */
+            grid-template-columns: 1fr 1fr; 
+            grid-template-rows: repeat(auto-fill, 10vmin); 
+            gap: 1vmin; 
             height: 100%;
-            width: 15vw;
-            align-content: center;
+            width: 15vw; 
+            align-content: center; 
             justify-items: center;
         }
 
+        /* Show side panels only if width is enough (e.g., Tablets, Desktops, or Large Landscape Phones) */
         @media (min-width: 800px) {
             .side-panel { display: grid; }
             .video-wrapper { width: 50vmin; height: 60vmin; }
         }
 
+        /* If in forced landscape (CSS rotates), adjust video to be huge */
         @media screen and (orientation: portrait) {
-            .video-wrapper { width: 70vh !important; height: 55vh !important; }
-            .side-panel { display: none !important; }
+            .video-wrapper {
+                width: 70vh !important; /* Uses height of portrait screen as width */
+                height: 55vh !important;
+            }
+            .side-panel { display: none !important; } /* Hide side panels in forced landscape to save space */
             .comeback-title { font-size: 6vh; }
         }
 
+        /* Normal desktop/laptop video sizing */
         @media screen and (orientation: landscape) {
-            .video-wrapper { width: 50vmin; height: 60vmin; }
+            .video-wrapper {
+                width: 50vmin; 
+                height: 60vmin; 
+            }
         }
 
         .mini-card {
-            width: 95%;
-            height: 100%;
-            background: rgba(0,18,66,0.8);
+            width: 95%; 
+            height: 100%; 
+            background: rgba(0, 18, 66, 0.8);
             border: 1px solid var(--csk-yellow);
             border-radius: 6px;
             display: flex;
@@ -488,8 +335,9 @@
             animation: slideInSide 0.5s ease-out forwards;
             padding: 2px;
         }
-
+        
         .mini-card:hover { transform: scale(1.1); border-color: #fff; z-index: 10; background: var(--csk-blue); }
+
         .mini-card .player-img { width: 40%; height: 40%; margin-bottom: 5%; border: none; }
         .mini-card .player-role { font-size: 1vmin; margin: 0; }
         .mini-card .player-name { font-size: 1.2vmin; padding: 0; line-height: 1.1; text-align: center; }
@@ -500,68 +348,12 @@
             overflow: hidden;
             z-index: 10;
             border-radius: 10px;
-            animation: videoPulse 2s ease-in-out infinite;
+            animation: videoPulse 2s ease-in-out infinite; 
             background: #000;
-            position: relative;
-        }
-
-        /* corner decorations on video */
-        .video-wrapper::before, .video-wrapper::after {
-            content: '';
-            position: absolute;
-            width: 20px; height: 20px;
-            border-color: #fff;
-            border-style: solid;
-            z-index: 15;
-        }
-
-        .video-wrapper::before {
-            top: 4px; left: 4px;
-            border-width: 3px 0 0 3px;
-        }
-
-        .video-wrapper::after {
-            bottom: 4px; right: 4px;
-            border-width: 0 3px 3px 0;
         }
 
         video { width: 100%; height: 100%; object-fit: cover; }
 
-        /* ========== SCORE TICKER (new) ========== */
-        #score-ticker {
-            position: absolute;
-            top: 0;
-            width: 100%;
-            height: 5vh;
-            background: rgba(0,18,66,0.95);
-            border-bottom: 2px solid var(--csk-yellow);
-            z-index: 55;
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-            display: none;
-        }
-
-        .ticker-track {
-            display: flex;
-            align-items: center;
-            gap: 5vw;
-            animation: slideLeft 18s linear infinite;
-            white-space: nowrap;
-            padding-left: 50px;
-        }
-
-        .ticker-item {
-            font-size: 1.8vmin;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .ticker-item span { color: var(--csk-yellow); font-weight: bold; }
-
-        /* ========== VIBE BG ========== */
         .vibe-bg {
             position: absolute;
             top: 50%; left: 50%;
@@ -573,12 +365,12 @@
             z-index: 0;
             filter: blur(20px);
         }
-
+        
         .vibe-particles {
             position: absolute;
             width: 100%; height: 100%;
             z-index: 1;
-            background-image:
+            background-image: 
                 radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
                 radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
                 radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
@@ -587,13 +379,12 @@
             animation: particleMove 60s linear infinite;
         }
 
-        /* ========== TROPHY BAR ========== */
         .trophy-bar-container {
             position: absolute;
             bottom: 0;
             width: 100%;
             height: 8vh;
-            background: rgba(0,18,66,0.9);
+            background: rgba(0, 18, 66, 0.9);
             border-top: 2px solid var(--csk-yellow);
             z-index: 50;
             display: flex;
@@ -620,182 +411,43 @@
             white-space: nowrap;
         }
 
-        .trophy-icon { color: var(--csk-yellow); font-size: 2.5vmin; filter: drop-shadow(0 0 5px var(--csk-yellow)); }
+        .trophy-icon {
+            color: var(--csk-yellow);
+            font-size: 2.5vmin;
+            filter: drop-shadow(0 0 5px var(--csk-yellow));
+        }
+
         .trophy-year { font-weight: bold; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
 
-        /* NEW: spotlight sweep on trophy bar */
-        .trophy-bar-container::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -30%;
-            width: 20%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,203,5,0.15), transparent);
-            animation: spotlightSweep 3s ease-in-out infinite;
-        }
-
-        @keyframes spotlightSweep {
-            from { left: -30%; }
-            to   { left: 120%; }
-        }
-
-        /* ========== LOADING DOTS (logo stage) ========== */
-        .loading-dots {
-            display: flex;
-            gap: 8px;
-            margin-top: 20px;
-        }
-
-        .loading-dots span {
-            width: 8px; height: 8px;
-            background: var(--csk-yellow);
-            border-radius: 50%;
-            animation: dotPulse 1.2s ease-in-out infinite;
-        }
-
-        .loading-dots span:nth-child(2) { animation-delay: .2s; }
-        .loading-dots span:nth-child(3) { animation-delay: .4s; }
-
-        @keyframes dotPulse {
-            0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-            40%            { transform: scale(1.2); opacity: 1; }
-        }
-
-        /* ========== PLAYER SPOTLIGHT MODAL ========== */
-        #player-spotlight {
-            position: absolute;
-            inset: 0;
-            z-index: 200;
-            background: rgba(0,0,0,0.85);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(6px);
-            animation: fadeIn .3s ease;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .spotlight-card {
-            background: linear-gradient(135deg, var(--csk-blue), #000d2e);
-            border: 3px solid var(--csk-yellow);
-            border-radius: 16px;
-            padding: 3vmin;
-            text-align: center;
-            width: clamp(160px, 40vmin, 280px);
-            animation: popIn .4s cubic-bezier(.175,.885,.32,1.275) forwards;
-            position: relative;
-        }
-
-        .spotlight-close {
-            position: absolute;
-            top: 8px; right: 12px;
-            color: rgba(255,255,255,0.4);
-            cursor: pointer;
-            font-size: 1.8vmin;
-            transition: color .2s;
-        }
-
-        .spotlight-close:hover { color: var(--csk-yellow); }
-
-        .spotlight-img {
-            width: 60%;
-            aspect-ratio: 1;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 3px solid var(--csk-yellow);
-            margin-bottom: 3%;
-            box-shadow: 0 0 20px rgba(255,203,5,0.4);
-        }
-
-        .spotlight-role { font-size: 1.6vmin; color: var(--csk-yellow); letter-spacing: 3px; text-transform: uppercase; }
-        .spotlight-name { font-size: 3vmin; color: #fff; text-transform: uppercase; line-height: 1.1; margin: 4px 0; }
-        .spotlight-stat { font-size: 1.4vmin; color: rgba(255,255,255,0.5); margin-top: 8px; }
-
-        /* ========== ANIMATIONS ========== */
-        @keyframes floatGlow   { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes pulseText   { from { transform: scale(1); } to { transform: scale(1.1); } }
-        @keyframes popIn       { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
-        @keyframes floatWhistle{ 0%,100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-        @keyframes vibeSpin    { 0% { transform: translate(-50%,-50%) rotate(0deg); } 100% { transform: translate(-50%,-50%) rotate(360deg); } }
-        @keyframes particleMove{ from { background-position: 0 0, 40px 60px, 130px 270px; } to { background-position: 550px 550px, 390px 410px, 380px 520px; } }
-        @keyframes videoPulse  { 0%,100% { box-shadow: 0 0 30px var(--csk-yellow); } 50% { box-shadow: 0 0 80px var(--csk-yellow), 0 0 20px white; } }
-        @keyframes slideLeft   { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        @keyframes titlePopIn  { from { opacity: 0; transform: scale(2); } to { opacity: 1; transform: scale(1); } }
-        @keyframes titleGlitch {
-            0%  { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
-            2%  { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
-            4%  { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
-            5%  { text-shadow: -2px 0 var(--csk-blue), 2px 0 var(--csk-yellow); }
-            100%{ text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
+        /* --- ANIMATIONS --- */
+        @keyframes floatGlow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes pulseText { from { transform: scale(1); } to { transform: scale(1.1); } }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+        @keyframes floatWhistle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        
+        @keyframes vibeSpin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+        @keyframes particleMove { from { background-position: 0 0, 40px 60px, 130px 270px; } to { background-position: 550px 550px, 390px 410px, 380px 520px; } }
+        @keyframes videoPulse { 0%, 100% { box-shadow: 0 0 30px var(--csk-yellow); } 50% { box-shadow: 0 0 80px var(--csk-yellow), 0 0 20px white; } }
+        @keyframes slideLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        
+        @keyframes titlePopIn { from { opacity: 0; transform: scale(2); } to { opacity: 1; transform: scale(1); } }
+        @keyframes titleGlitch { 
+            0% { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
+            2% { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
+            4% { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
+            5% { text-shadow: -2px 0 var(--csk-blue), 2px 0 var(--csk-yellow); }
+            100% { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
         }
         @keyframes slideInSide { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* NEW: scanline overlay on video */
-        .scanline {
-            position: absolute;
-            inset: 0;
-            background: repeating-linear-gradient(
-                to bottom,
-                transparent,
-                transparent 3px,
-                rgba(0,0,0,0.08) 3px,
-                rgba(0,0,0,0.08) 4px
-            );
-            pointer-events: none;
-            z-index: 12;
-        }
-
-        /* NEW: cheering bar that fills on click */
-        #cheer-bar {
-            position: absolute;
-            bottom: 8vh;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 55;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .cheer-label { font-size: 1.5vmin; letter-spacing: 3px; color: rgba(255,255,255,0.5); }
-
-        .cheer-track {
-            width: 40vmin;
-            height: 8px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .cheer-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--csk-yellow), #fff);
-            border-radius: 4px;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 10px var(--csk-yellow);
-        }
     </style>
 </head>
 <body>
+
+    <!-- WRAPPER FOR AUTO-ROTATION -->
     <div id="app-wrapper">
         <canvas id="stadium-canvas"></canvas>
-        <canvas id="fireworks-canvas"></canvas>
-        <div id="laser-overlay"></div>
         <div id="smoke-overlay"></div>
-
-        <!-- PLAYER SPOTLIGHT -->
-        <div id="player-spotlight">
-            <div class="spotlight-card">
-                <span class="spotlight-close" onclick="closeSpotlight()">✕</span>
-                <img id="sp-img" src="" class="spotlight-img" onerror="this.src='https://via.placeholder.com/120?text=IMG'">
-                <div id="sp-role" class="spotlight-role"></div>
-                <div id="sp-name" class="spotlight-name"></div>
-                <div id="sp-stat" class="spotlight-stat"></div>
-            </div>
-        </div>
 
         <!-- STAGE 1: LOGO -->
         <div class="center-stage" id="logo-stage">
@@ -804,34 +456,23 @@
             </div>
             <h1>CHENNAI<br>SUPER KINGS</h1>
             <div class="tagline">WHISTLE PODU!</div>
-            <div class="loading-dots">
-                <span></span><span></span><span></span>
-            </div>
-            <div id="countdown-bar">
-                <div class="countdown-text">LOADING PLAYING XI</div>
-                <div class="countdown-track">
-                    <div class="countdown-fill"></div>
-                </div>
-            </div>
         </div>
 
-        <!-- STAGE 2: CARDS GRID -->
+        <!-- STAGE 2: ALL CARDS GRID -->
         <div id="cards-stage">
-            <h2 class="section-title">⚡ POWERFUL PLAYING XII ⚡</h2>
-            <div class="cards-grid" id="grid-container"></div>
+            <h2 class="section-title">POWERFULL PLAYING XII</h2>
+            <div class="cards-grid" id="grid-container">
+                <!-- JS will inject cards here -->
+            </div>
         </div>
 
-        <!-- STAGE 3: WHISTLE -->
+        <!-- STAGE 3: WHISTLE INTERACTION -->
         <div id="whistle-stage">
-            <div class="whistle-pulse"></div>
-            <div class="whistle-pulse"></div>
-            <div class="whistle-pulse"></div>
             <div class="whistle-container">
                 <div class="whistle-body"></div>
                 <div class="whistle-ring"></div>
             </div>
             <div class="click-hint">CLICK TO START</div>
-            <div class="click-arrow">▼</div>
         </div>
 
         <!-- STAGE 4: VIDEO -->
@@ -839,41 +480,24 @@
             <div class="vibe-bg"></div>
             <div class="vibe-particles"></div>
 
-            <!-- score ticker -->
-            <div id="score-ticker" style="display:flex">
-                <div class="ticker-track">
-                    <div class="ticker-item">🏏 CSK vs MI · CSK: <span>186/4 (20)</span> · MI: <span>142/8 (20)</span> · CSK WON BY 44 RUNS</div>
-                    <div class="ticker-item">🔥 Ruturaj Gaikwad: <span>87*(52)</span> · MOM Award</div>
-                    <div class="ticker-item">💛 Next Match: <span>CSK vs RCB · MA Chidambaram Stadium</span></div>
-                    <div class="ticker-item">🏆 Points Table: <span>CSK #1</span> · 8 pts from 5 games</div>
-                    <!-- duplicate -->
-                    <div class="ticker-item">🏏 CSK vs MI · CSK: <span>186/4 (20)</span> · MI: <span>142/8 (20)</span> · CSK WON BY 44 RUNS</div>
-                    <div class="ticker-item">🔥 Ruturaj Gaikwad: <span>87*(52)</span> · MOM Award</div>
-                    <div class="ticker-item">💛 Next Match: <span>CSK vs RCB · MA Chidambaram Stadium</span></div>
-                    <div class="ticker-item">🏆 Points Table: <span>CSK #1</span> · 8 pts from 5 games</div>
-                </div>
-            </div>
-
-            <div class="comeback-title" style="margin-top:5vh">COMEBACK CSK 💛</div>
+            <div class="comeback-title">COMEBACK CSK</div>
 
             <div class="video-layout-row">
+                <!-- Left Side: Grid Layout -->
                 <div class="side-panel" id="side-left"></div>
+
+                <!-- Center: Bigger Video -->
                 <div class="video-wrapper">
-                    <div class="scanline"></div>
                     <video id="main-video" playsinline onended="restartAll()">
                         <source src="video.mp4" type="video/mp4">
                     </video>
                 </div>
+
+                <!-- Right Side: Grid Layout -->
                 <div class="side-panel" id="side-right"></div>
             </div>
 
-            <!-- cheer bar -->
-            <div id="cheer-bar" style="display:flex">
-                <div class="cheer-label">CROWD ENERGY</div>
-                <div class="cheer-track"><div class="cheer-fill" id="cheer-fill"></div></div>
-            </div>
-
-            <!-- trophy ticker -->
+            <!-- Trophy Ticker -->
             <div class="trophy-bar-container">
                 <div class="trophy-track">
                     <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2010</span></div>
@@ -882,7 +506,7 @@
                     <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2021</span></div>
                     <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2023</span></div>
                     <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2024</span></div>
-                    <!-- duplicate -->
+                    <!-- Duplicate -->
                     <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2010</span></div>
                     <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2011</span></div>
                     <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2018</span></div>
@@ -895,378 +519,252 @@
     </div>
 
     <script>
-    // ====== AUDIO ======
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // --- AUDIO SYSTEM ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    const SoundFX = {
-        playWhistle() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const t = audioCtx.currentTime;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(2000, t);
-            osc.frequency.linearRampToValueAtTime(2300, t + 0.1);
-            osc.frequency.linearRampToValueAtTime(2200, t + 0.3);
-            gain.gain.setValueAtTime(0, t);
-            gain.gain.linearRampToValueAtTime(0.5, t + 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.01, t + 1.5);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(t); osc.stop(t + 1.5);
-        },
-        playCardAssembly() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const t = audioCtx.currentTime;
-            const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 1.5, audioCtx.sampleRate);
-            const data = buf.getChannelData(0);
-            for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-            const noise = audioCtx.createBufferSource();
-            noise.buffer = buf;
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(800, t);
-            filter.frequency.linearRampToValueAtTime(100, t + 1);
-            const gain = audioCtx.createGain();
-            gain.gain.setValueAtTime(0.5, t);
-            gain.gain.exponentialRampToValueAtTime(0.01, t + 1);
-            noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-            noise.start(t);
-        },
-        playCardClick() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const t = audioCtx.currentTime;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(880, t);
-            osc.frequency.linearRampToValueAtTime(440, t + 0.1);
-            gain.gain.setValueAtTime(0.3, t);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(t); osc.stop(t + 0.15);
-        },
-        playCrowd() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const t = audioCtx.currentTime;
-            const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 2, audioCtx.sampleRate);
-            const data = buf.getChannelData(0);
-            for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-            const noise = audioCtx.createBufferSource();
-            noise.buffer = buf;
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.value = 800;
-            filter.Q.value = 0.5;
-            const gain = audioCtx.createGain();
-            gain.gain.setValueAtTime(0, t);
-            gain.gain.linearRampToValueAtTime(0.3, t + 0.3);
-            gain.gain.linearRampToValueAtTime(0, t + 2);
-            noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-            noise.start(t);
-        }
-    };
-
-    // ====== DATA ======
-    const players = [
-        { name: "Sanju Samson",       role: "WK",      img: "player1.png",  stat: "IPL: 2000+ runs" },
-        { name: "Ayush Mhatre",       role: "BAT",     img: "player2.png",  stat: "Rising star 2025" },
-        { name: "Ruturaj Gaikwad",    role: "(C) BAT", img: "player3.png",  stat: "Orange Cap 2021" },
-        { name: "Dewald Brevis",      role: "BAT",     img: "player4.png",  stat: "Baby AB de Villiers" },
-        { name: "Sarfaraz Khan",      role: "BAT",     img: "player5.png",  stat: "Test centurion" },
-        { name: "Shivam Dube",        role: "AR",      img: "player6.png",  stat: "Power hitter" },
-        { name: "Ramakrishna Ghosh",  role: "BWL",     img: "player7.png",  stat: "Spinner" },
-        { name: "Jamie Overton",      role: "AR",      img: "player8.png",  stat: "England pacer" },
-        { name: "Noor Ahmad",         role: "BWL",     img: "player9.png",  stat: "Afghanistan spinner" },
-        { name: "Khaleel Ahmed",      role: "BWL",     img: "player10.png", stat: "Left-arm pacer" },
-        { name: "Gurjapneet Singh",   role: "BWL",     img: "player11.png", stat: "Death overs specialist" }
-    ];
-
-    const impactPlayers = [
-        { name: "Anshul Kamboj", role: "IMPACT", img: "impact1.png", stat: "Fast bowler" },
-        { name: "Urvil Patel",   role: "IMPACT", img: "impact2.png", stat: "Power hitter" }
-    ];
-
-    // ====== CANVAS BACKGROUND ======
-    const canvas = document.getElementById('stadium-canvas');
-    const ctx = canvas.getContext('2d');
-    const wrapper = document.getElementById('app-wrapper');
-    let width, height, spectators = [], confettiArr = [], time = 0;
-
-    function resize() {
-        width = canvas.width = wrapper.clientWidth;
-        height = canvas.height = wrapper.clientHeight;
-        initSpectators();
-    }
-    window.addEventListener('resize', resize);
-
-    class Spectator {
-        constructor(angle, row) {
-            this.angle = angle; this.row = row;
-            this.radius = 400 + row * 30;
-            this.size = Math.random() * 6 + 4;
-            const cols = ['#FFCB05','#FFD700','#FFA500','#FFEC8B'];
-            this.color = cols[Math.floor(Math.random() * cols.length)];
-        }
-        update(t) { this.currentY = Math.sin(t * 0.05 + this.angle * 5 + this.row) * 10; }
-        draw() {
-            const cx = width / 2, by = height + 200;
-            const x = cx + Math.cos(this.angle) * this.radius;
-            const y = by + Math.sin(this.angle) * this.radius + this.currentY;
-            ctx.fillStyle = this.color;
-            ctx.beginPath(); ctx.arc(x, y, this.size, 0, Math.PI * 2); ctx.fill();
-        }
-    }
-
-    class Confetti {
-        constructor() { this.reset(); }
-        reset() {
-            this.x = Math.random() * width;
-            this.y = height + 20;
-            this.vx = (Math.random() - 0.5) * 2;
-            this.vy = -(Math.random() * 5 + 2);
-            this.size = Math.random() * 8 + 2;
-            this.color = Math.random() > 0.5 ? '#FFCB05' : '#001242';
-        }
-        update() { this.x += this.vx; this.y += this.vy; if (this.y < -20) this.reset(); }
-        draw() {
-            ctx.save(); ctx.translate(this.x, this.y);
-            ctx.fillStyle = this.color;
-            ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
-            ctx.restore();
-        }
-    }
-
-    function initSpectators() {
-        spectators = [];
-        const mob = width < 800;
-        const rows = mob ? 10 : 20, items = mob ? 40 : 60;
-        for (let r = 0; r < rows; r++)
-            for (let i = 0; i < items; i++)
-                spectators.push(new Spectator((Math.PI * (i/items)) + Math.random()*0.05, r));
-    }
-
-    function animate() {
-        ctx.clearRect(0, 0, width, height);
-        ctx.fillStyle = '#000000'; ctx.fillRect(0, 0, width, height);
-        time++;
-        spectators.forEach(s => { s.update(time); s.draw(); });
-        if (confettiArr.length < 100) confettiArr.push(new Confetti());
-        confettiArr.forEach(c => { c.update(); c.draw(); });
-        requestAnimationFrame(animate);
-    }
-
-    // ====== FIREWORKS ======
-    const fwCanvas = document.getElementById('fireworks-canvas');
-    const fwCtx = fwCanvas.getContext('2d');
-    let particles = [];
-
-    class FWParticle {
-        constructor(x, y) {
-            this.x = x; this.y = y;
-            const angle = Math.random() * Math.PI * 2;
-            const speed = Math.random() * 6 + 2;
-            this.vx = Math.cos(angle) * speed;
-            this.vy = Math.sin(angle) * speed;
-            this.life = 1;
-            this.decay = Math.random() * 0.02 + 0.015;
-            this.size = Math.random() * 4 + 1;
-            this.color = Math.random() > 0.5 ? '#FFCB05' : '#fff';
-        }
-        update() {
-            this.x += this.vx; this.y += this.vy;
-            this.vy += 0.1; // gravity
-            this.life -= this.decay;
-            this.vx *= 0.98; this.vy *= 0.98;
-        }
-        draw() {
-            fwCtx.save();
-            fwCtx.globalAlpha = this.life;
-            fwCtx.fillStyle = this.color;
-            fwCtx.beginPath();
-            fwCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            fwCtx.fill();
-            fwCtx.restore();
-        }
-    }
-
-    function launchFirework(x, y) {
-        for (let i = 0; i < 80; i++) particles.push(new FWParticle(x, y));
-    }
-
-    function animateFW() {
-        fwCanvas.width = wrapper.clientWidth;
-        fwCanvas.height = wrapper.clientHeight;
-        fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
-        particles = particles.filter(p => p.life > 0);
-        particles.forEach(p => { p.update(); p.draw(); });
-        requestAnimationFrame(animateFW);
-    }
-
-    // ====== TROPHY RAIN ======
-    function dropTrophies() {
-        const trophyChars = ['🏆','🥇','⭐','💛','🦁'];
-        for (let i = 0; i < 15; i++) {
-            setTimeout(() => {
-                const el = document.createElement('div');
-                el.className = 'trophy-rain-item';
-                el.textContent = trophyChars[Math.floor(Math.random() * trophyChars.length)];
-                el.style.left = Math.random() * 100 + 'vw';
-                el.style.animationDuration = (Math.random() * 2 + 2) + 's';
-                el.style.fontSize = (Math.random() * 2 + 1.5) + 'rem';
-                document.getElementById('app-wrapper').appendChild(el);
-                setTimeout(() => el.remove(), 5000);
-            }, i * 200);
-        }
-    }
-
-    // ====== LASER BEAMS ======
-    function shootLasers() {
-        const overlay = document.getElementById('laser-overlay');
-        overlay.style.display = 'block';
-        overlay.innerHTML = '';
-        const colors = ['#FFCB05','#fff','#FFCB05','#FFA500'];
-        for (let i = 0; i < 8; i++) {
-            const laser = document.createElement('div');
-            laser.className = 'laser';
-            laser.style.left = (10 + i * 11) + '%';
-            laser.style.background = colors[i % colors.length];
-            laser.style.boxShadow = `0 0 10px ${colors[i % colors.length]}`;
-            laser.style.animationDelay = (i * 0.1) + 's';
-            laser.style.transform = `rotate(${-20 + i * 6}deg)`;
-            overlay.appendChild(laser);
-        }
-        setTimeout(() => { overlay.style.display = 'none'; }, 2500);
-    }
-
-    // ====== PLAYER SPOTLIGHT ======
-    function openSpotlight(p) {
-        SoundFX.playCardClick();
-        document.getElementById('sp-img').src = p.img;
-        document.getElementById('sp-role').textContent = p.role;
-        document.getElementById('sp-name').textContent = p.name;
-        document.getElementById('sp-stat').textContent = p.stat;
-        const spotlight = document.getElementById('player-spotlight');
-        spotlight.style.display = 'flex';
-    }
-
-    function closeSpotlight() {
-        document.getElementById('player-spotlight').style.display = 'none';
-    }
-
-    // ====== INIT CARDS ======
-    function initCards() {
-        const grid = document.getElementById('grid-container');
-        grid.innerHTML = '';
-        const all = [...players, ...impactPlayers];
-        all.forEach((p, i) => {
-            const div = document.createElement('div');
-            div.className = i >= players.length ? 'player-card impact' : 'player-card';
-            div.style.animationDelay = `${i * 0.1}s`;
-            div.innerHTML = `
-                <div class="card-num">#${i + 1}</div>
-                <img src="${p.img}" class="player-img" onerror="this.src='https://via.placeholder.com/100?text=${encodeURIComponent(p.name[0])}'">
-                <div class="player-role">${p.role}</div>
-                <div class="player-name">${p.name}</div>
-            `;
-            div.addEventListener('click', () => openSpotlight(p));
-            grid.appendChild(div);
-        });
-    }
-
-    // ====== RENDER SIDE CARDS ======
-    function renderSideCards() {
-        const left = document.getElementById('side-left');
-        const right = document.getElementById('side-right');
-        left.innerHTML = ''; right.innerHTML = '';
-        const all = [...players, ...impactPlayers];
-        const mid = Math.ceil(all.length / 2);
-        const mk = (p, i) => {
-            const div = document.createElement('div');
-            div.className = 'mini-card';
-            div.style.animationDelay = `${i * 0.05}s`;
-            div.innerHTML = `<img src="${p.img}" class="player-img" onerror="this.src='https://via.placeholder.com/50?text=${encodeURIComponent(p.name[0])}'"><div class="player-role">${p.role}</div><div class="player-name">${p.name}</div>`;
-            return div;
-        };
-        all.slice(0, mid).forEach((p, i) => left.appendChild(mk(p, i)));
-        all.slice(mid).forEach((p, i) => right.appendChild(mk(p, i)));
-    }
-
-    // ====== CHEER BAR ======
-    let cheerPct = 0;
-    function addCheer() {
-        cheerPct = Math.min(100, cheerPct + 12);
-        document.getElementById('cheer-fill').style.width = cheerPct + '%';
-        if (cheerPct >= 100) {
-            // FULL CHEER — firework burst!
-            launchFirework(Math.random() * fwCanvas.width, Math.random() * fwCanvas.height * 0.6);
-            launchFirework(Math.random() * fwCanvas.width, Math.random() * fwCanvas.height * 0.6);
-            SoundFX.playCrowd();
-            cheerPct = 0;
-            setTimeout(() => { document.getElementById('cheer-fill').style.width = '0%'; }, 500);
-        }
-    }
-
-    // ====== SEQUENCE ======
-    function runSequence() {
-        const logo   = document.getElementById('logo-stage');
-        const smoke  = document.getElementById('smoke-overlay');
-        const cards  = document.getElementById('cards-stage');
-        const whistle= document.getElementById('whistle-stage');
-
-        smoke.classList.add('smoke-explode');
-
-        setTimeout(() => {
-            logo.style.display = 'none';
-            cards.style.display = 'flex';
-            SoundFX.playCardAssembly();
-            dropTrophies();
-        }, 1000);
-
-        setTimeout(() => {
-            whistle.style.display = 'flex';
-        }, 4000);
-    }
-
-    function playVideo() {
-        const whistle    = document.getElementById('whistle-stage');
-        const cards      = document.getElementById('cards-stage');
-        const videoStage = document.getElementById('video-stage');
-        const video      = document.getElementById('main-video');
-
-        SoundFX.playWhistle();
-        shootLasers();
-
-        setTimeout(() => {
-            for (let i = 0; i < 4; i++) {
-                setTimeout(() => launchFirework(
-                    Math.random() * wrapper.clientWidth,
-                    Math.random() * wrapper.clientHeight * 0.5
-                ), i * 300);
+        const SoundFX = {
+            playWhistle: function() {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const t = audioCtx.currentTime;
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(2000, t);
+                oscillator.frequency.linearRampToValueAtTime(2300, t + 0.1);
+                oscillator.frequency.linearRampToValueAtTime(2200, t + 0.3);
+                gainNode.gain.setValueAtTime(0, t);
+                gainNode.gain.linearRampToValueAtTime(0.5, t + 0.05);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, t + 1.5);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start(t);
+                oscillator.stop(t + 1.5);
+            },
+            playCardAssembly: function() {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const t = audioCtx.currentTime;
+                const bufferSize = audioCtx.sampleRate * 1.5; 
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, t);
+                filter.frequency.linearRampToValueAtTime(100, t + 1.0);
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0.5, t);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, t + 1.0);
+                noise.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                noise.start(t);
             }
-            whistle.style.display = 'none';
-            cards.style.display = 'none';
-            renderSideCards();
-            videoStage.style.display = 'flex';
-            video.play().catch(e => console.log("Video play:", e));
+        };
 
-            // tap to cheer
-            videoStage.addEventListener('click', addCheer);
-        }, 500);
-    }
+        // --- DATA ---
+        const players = [
+            { name: "Sanju Samson", role: "WK", img: "player1.png" },
+            { name: "Ayush Mhatre", role: "BAT", img: "player2.png" },
+            { name: "Ruturaj Gaikwad", role: "(C) BAT", img: "player3.png" },
+            { name: "Dewald Brevis", role: "BAT", img: "player4.png" },
+            { name: "Sarfaraz Khan", role: "BAT", img: "player5.png" },
+            { name: "Shivam Dube", role: "AR", img: "player6.png" },
+            { name: "Ramakrishna Ghosh", role: "BWL", img: "player7.png" },
+            { name: "Jamie Overton", role: "AR", img: "player8.png" },
+            { name: "Noor Ahmad", role: "BWL", img: "player9.png" },
+            { name: "Khaleel Ahmed", role: "BWL", img: "player10.png" },
+            { name: "Gurjapneet Singh", role: "BWL", img: "player11.png" }
+        ];
 
-    function restartAll() { location.reload(); }
+        const impactPlayers = [
+            { name: "Anshul Kamboj", role: "IMPACT", img: "impact1.png" },
+            { name: "Urvil Patel", role: "IMPACT", img: "impact2.png" }
+        ];
 
-    // ====== INIT ======
-    window.onload = () => {
-        setTimeout(() => {
-            resize();
-            animate();
-            animateFW();
-        }, 100);
-        initCards();
-        document.getElementById('whistle-stage').addEventListener('click', playVideo);
-        setTimeout(runSequence, 4000);
-    };
+        // --- BACKGROUND ANIMATION (Canvas) ---
+        const canvas = document.getElementById('stadium-canvas');
+        const ctx = canvas.getContext('2d');
+        // Use the wrapper for dimensions to support rotation
+        const wrapper = document.getElementById('app-wrapper');
+        let width, height, spectators = [], confetti = [], time = 0;
+
+        function resize() {
+            // Get dimensions from the wrapper, not window, to handle auto-rotation
+            width = canvas.width = wrapper.clientWidth;
+            height = canvas.height = wrapper.clientHeight;
+            initSpectators();
+        }
+        window.addEventListener('resize', resize);
+
+        class Spectator {
+            constructor(angle, row) {
+                this.angle = angle; this.row = row;
+                this.radius = 400 + (row * 30);
+                this.size = Math.random() * 6 + 4;
+                const colors = ['#FFCB05', '#FFD700', '#FFA500', '#FFEC8B'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+            update(t) { this.currentY = Math.sin(t * 0.05 + this.angle * 5 + this.row) * 10; }
+            draw() {
+                const centerX = width / 2, bottomY = height + 200;
+                const x = centerX + Math.cos(this.angle) * this.radius;
+                const y = bottomY + Math.sin(this.angle) * this.radius + this.currentY;
+                ctx.fillStyle = this.color;
+                ctx.beginPath(); ctx.arc(x, y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+
+        class Confetti {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * width; this.y = height + 20;
+                this.vx = (Math.random() - 0.5) * 2; this.vy = -(Math.random() * 5 + 2);
+                this.size = Math.random() * 8 + 2;
+                this.color = Math.random() > 0.5 ? '#FFCB05' : '#001242';
+            }
+            update() { this.x += this.vx; this.y += this.vy; if (this.y < -20) this.reset(); }
+            draw() {
+                ctx.save(); ctx.translate(this.x, this.y); ctx.fillStyle = this.color;
+                ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size); ctx.restore();
+            }
+        }
+
+        function initSpectators() {
+            spectators = [];
+            // Reduce number of spectators for mobile performance if needed
+            const isMobile = width < 800;
+            const rows = isMobile ? 10 : 20;
+            const items = isMobile ? 40 : 60;
+
+            for (let r = 0; r < rows; r++) {
+                for (let i = 0; i < items; i++) {
+                    spectators.push(new Spectator((Math.PI * (i/items)) + Math.random()*0.05, r));
+                }
+            }
+        }
+
+        function animate() {
+            try {
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(0, 0, width, height);
+                time++;
+                spectators.forEach(s => { s.update(time); s.draw(); });
+                if (confetti.length < 100) confetti.push(new Confetti());
+                confetti.forEach(c => { c.update(); c.draw(); });
+                requestAnimationFrame(animate);
+            } catch (e) {
+                // Prevent crash in "Desktop Mode" on mobile
+                console.log("Animation frame skipped", e);
+                requestAnimationFrame(animate);
+            }
+        }
+
+        // --- LOGIC ---
+
+        function initCards() {
+            const grid = document.getElementById('grid-container');
+            grid.innerHTML = ''; 
+            let allPlayers = [...players, ...impactPlayers];
+            
+            allPlayers.forEach((p, index) => {
+                const div = document.createElement('div');
+                const isImpact = index >= players.length;
+                div.className = isImpact ? 'player-card impact' : 'player-card';
+                div.style.animationDelay = `${index * 0.1}s`; 
+                div.innerHTML = `
+                    <img src="${p.img}" class="player-img" onerror="this.src='https://via.placeholder.com/100?text=IMG'">
+                    <div class="player-role">${p.role}</div>
+                    <div class="player-name">${p.name}</div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function renderSideCards() {
+            const leftContainer = document.getElementById('side-left');
+            const rightContainer = document.getElementById('side-right');
+            leftContainer.innerHTML = '';
+            rightContainer.innerHTML = '';
+
+            const allPlayers = [...players, ...impactPlayers];
+            const midPoint = Math.ceil(allPlayers.length / 2);
+
+            const leftPlayers = allPlayers.slice(0, midPoint);
+            const rightPlayers = allPlayers.slice(midPoint);
+
+            const createMiniCard = (p, index) => {
+                const div = document.createElement('div');
+                div.className = 'mini-card';
+                div.style.animationDelay = `${index * 0.05}s`;
+                div.innerHTML = `
+                    <img src="${p.img}" class="player-img" onerror="this.src='https://via.placeholder.com/50?text=IMG'">
+                    <div class="player-role">${p.role}</div>
+                    <div class="player-name">${p.name}</div>
+                `;
+                return div;
+            };
+
+            leftPlayers.forEach((p, i) => leftContainer.appendChild(createMiniCard(p, i)));
+            rightPlayers.forEach((p, i) => rightContainer.appendChild(createMiniCard(p, i)));
+        }
+
+        function runSequence() {
+            const logo = document.getElementById('logo-stage');
+            const smoke = document.getElementById('smoke-overlay');
+            const cards = document.getElementById('cards-stage');
+            const whistle = document.getElementById('whistle-stage');
+
+            smoke.classList.add('smoke-explode');
+
+            setTimeout(() => {
+                logo.style.display = 'none';
+                cards.style.display = 'flex';
+                SoundFX.playCardAssembly();
+            }, 1000);
+
+            setTimeout(() => {
+                whistle.style.display = 'flex';
+            }, 4000);
+        }
+
+        function playVideo() {
+            const whistle = document.getElementById('whistle-stage');
+            const cards = document.getElementById('cards-stage');
+            const videoStage = document.getElementById('video-stage');
+            const video = document.getElementById('main-video');
+
+            SoundFX.playWhistle();
+
+            setTimeout(() => {
+                whistle.style.display = 'none';
+                cards.style.display = 'none';
+
+                renderSideCards();
+
+                videoStage.style.display = 'flex';
+                video.play().catch(e => console.log("Video play failed:", e));
+            }, 500);
+        }
+
+        function restartAll() {
+            location.reload();
+        }
+
+        // --- INIT ---
+        window.onload = () => {
+            // Initial resize might need a slight delay for layout to settle in rotated view
+            setTimeout(() => {
+                resize();
+                animate();
+            }, 100);
+            
+            initCards();
+            document.getElementById('whistle-stage').addEventListener('click', playVideo);
+            setTimeout(runSequence, 4000);
+        };
     </script>
 </body>
 </html>
