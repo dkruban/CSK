@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- IMPORTANT: This ensures mobile browsers respect the scaling -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CSK | Playing XI - Auto Landscape</title>
+    <title>CSK | Playing XI - Fixed Mobile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -18,58 +17,101 @@
         body {
             background-color: var(--stadium-dark);
             color: white;
-            overflow: hidden; /* Prevents scrollbars during rotation */
+            overflow: hidden;
             width: 100vw;
             height: 100vh;
             font-family: 'Arial Black', sans-serif;
             cursor: default;
         }
 
-        /* --- AUTO LANDSCAPE WRAPPER --- */
-        /* This wrapper handles the automatic rotation for mobile portrait mode */
+        /* --- ROTATION LOCK OVERLAY (THE FIX) --- */
+        #orientation-lock {
+            display: none; /* Hidden by default on Desktop/Landscape */
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: #000;
+            z-index: 99999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .rotate-icon {
+            font-size: 4rem;
+            color: var(--csk-yellow);
+            margin-bottom: 20px;
+            animation: pulseText 1.5s infinite;
+        }
+
+        .rotate-text {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .force-start-btn {
+            background: var(--csk-yellow);
+            color: var(--csk-blue);
+            border: none;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 203, 5, 0.5);
+            transition: transform 0.2s;
+        }
+        .force-start-btn:active { transform: scale(0.95); }
+
+        /* SHOW LOCK SCREEN ON PORTRAIT, HIDE ON LANDSCAPE */
+        @media screen and (orientation: portrait) {
+            #orientation-lock { display: flex; }
+            #app-wrapper { display: none; } /* Hide app to prevent black screen */
+        }
+
+        @media screen and (orientation: landscape) {
+            #orientation-lock { display: none; }
+            #app-wrapper { display: block; }
+        }
+
+        /* --- MAIN APP WRAPPER --- */
         #app-wrapper {
             width: 100%;
             height: 100%;
             position: relative;
             overflow: hidden;
             transform-origin: top left;
-            transition: transform 0.3s ease;
+            transition: transform 0.5s ease;
         }
 
-        /* If the device is in Portrait (Vertical), rotate the content 90deg */
-        @media screen and (orientation: portrait) {
-            #app-wrapper {
-                position: absolute;
-                top: 0;
-                left: 100vw; /* Move to the right edge because we rotate */
-                width: 100vh; /* Width becomes screen height */
-                height: 100vw; /* Height becomes screen width */
-                transform: rotate(-90deg); /* Rotate counter-clockwise */
-                transform-origin: top left;
-                background-color: var(--stadium-dark);
-                z-index: 1000;
-            }
-            /* Hide body background to prevent bleeding */
-            body { background: black; }
+        /* This class is added via JS when user clicks "Force Start" in Portrait */
+        .force-landscape-mode {
+            position: fixed;
+            top: 0; left: 100vw;
+            width: 100vh; height: 100vw;
+            transform: rotate(-90deg) !important;
+            transform-origin: top left;
+            background: var(--stadium-dark);
+            z-index: 5000;
         }
 
         /* --- BACKGROUND --- */
         #stadium-canvas {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             z-index: 1;
         }
 
         /* --- SMOKE --- */
         #smoke-overlay {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            width: 10px;
-            height: 10px;
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 10px; height: 10px;
             background: radial-gradient(circle, #ffffff 0%, var(--csk-yellow) 40%, transparent 70%);
             border-radius: 50%;
             transform: translate(-50%, -50%) scale(0);
@@ -95,14 +137,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             justify-content: center;
         }
 
         .logo-container {
-            width: 35vmin; /* Responsive size based on viewport */
-            height: 35vmin;
+            width: 35vmin; height: 35vmin;
             background: rgba(0, 18, 66, 0.9);
             border: 5px solid var(--csk-yellow);
             border-radius: 50%;
@@ -115,31 +155,11 @@
             overflow: hidden; 
         }
 
-        .logo-container img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: contain; 
-            padding: 5vmin; 
-        }
-        
-        h1 { 
-            font-size: 6vmin; 
-            color: white; 
-            text-transform: uppercase; 
-            animation: pulseText 1.5s infinite alternate; 
-            text-shadow: 2px 2px 0 #000; 
-            line-height: 1.1;
-        }
-        .tagline { 
-            font-size: 3vmin; 
-            color: var(--csk-yellow); 
-            letter-spacing: 5px; 
-            font-weight: bold; 
-            text-shadow: 1px 1px 0 #000; 
-            margin-top: 10px;
-        }
+        .logo-container img { width: 100%; height: 100%; object-fit: contain; padding: 5vmin; }
+        h1 { font-size: 6vmin; color: white; text-transform: uppercase; animation: pulseText 1.5s infinite alternate; text-shadow: 2px 2px 0 #000; line-height: 1.1; }
+        .tagline { font-size: 3vmin; color: var(--csk-yellow); letter-spacing: 5px; font-weight: bold; text-shadow: 1px 1px 0 #000; margin-top: 10px; }
 
-        /* --- STAGE 2: CARDS GRID --- */
+        /* --- STAGE 2: CARDS --- */
         #cards-stage {
             position: absolute;
             top: 0; left: 0;
@@ -155,7 +175,7 @@
 
         .section-title {
             color: var(--csk-yellow);
-            font-size: 4vmin; /* Responsive font */
+            font-size: 4vmin;
             text-transform: uppercase;
             text-align: center;
             margin-bottom: 4vmin;
@@ -168,14 +188,12 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 2vmin; /* Responsive gap */
+            gap: 2vmin;
             max-width: 90%;
         }
 
         .player-card {
-            /* Responsive sizing for cards */
-            width: 16vmin; 
-            height: 24vmin;
+            width: 16vmin; height: 24vmin;
             background: linear-gradient(135deg, var(--csk-blue), #000);
             border: 2px solid var(--csk-yellow);
             border-radius: 10px;
@@ -185,12 +203,10 @@
             justify-content: center;
             box-shadow: 0 0 10px rgba(255, 203, 5, 0.3);
             animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            opacity: 0; 
-            position: relative;
+            opacity: 0; position: relative;
         }
 
         .player-card.impact { border-color: #fff; box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
-
         .player-img { width: 50%; height: 50%; object-fit: cover; margin-bottom: 5%; border-bottom: 1px solid var(--csk-yellow); }
         .player-role { font-size: 1.5vmin; color: var(--csk-yellow); text-transform: uppercase; margin-bottom: 2px; }
         .player-name { font-size: 2vmin; text-align: center; color: white; text-transform: uppercase; line-height: 1.1; padding: 0 5px; }
@@ -205,14 +221,10 @@
             flex-direction: column;
             align-items: center;
             cursor: pointer;
-            transition: transform 0.2s;
         }
 
-        #whistle-stage:active { transform: translate(-50%, -50%) scale(0.95); }
-
         .whistle-container {
-            width: 15vmin;
-            height: 15vmin;
+            width: 15vmin; height: 15vmin;
             position: relative;
             transform-style: preserve-3d;
             animation: floatWhistle 2s ease-in-out infinite;
@@ -283,9 +295,8 @@
             z-index: 20;
         }
 
-        /* Side Panels: Hide on very small screens, show on larger mobiles/tablets */
         .side-panel {
-            display: none; /* Default hidden for safety on small phones */
+            display: none;
             grid-template-columns: 1fr 1fr; 
             grid-template-rows: repeat(auto-fill, 10vmin); 
             gap: 1vmin; 
@@ -295,33 +306,23 @@
             justify-items: center;
         }
 
-        /* Show side panels only if width is enough (e.g., Tablets, Desktops, or Large Landscape Phones) */
         @media (min-width: 800px) {
             .side-panel { display: grid; }
             .video-wrapper { width: 50vmin; height: 60vmin; }
         }
 
-        /* If in forced landscape (CSS rotates), adjust video to be huge */
         @media screen and (orientation: portrait) {
-            .video-wrapper {
-                width: 70vh !important; /* Uses height of portrait screen as width */
-                height: 55vh !important;
-            }
-            .side-panel { display: none !important; } /* Hide side panels in forced landscape to save space */
+            .video-wrapper { width: 70vh !important; height: 55vh !important; }
+            .side-panel { display: none !important; }
             .comeback-title { font-size: 6vh; }
         }
 
-        /* Normal desktop/laptop video sizing */
         @media screen and (orientation: landscape) {
-            .video-wrapper {
-                width: 50vmin; 
-                height: 60vmin; 
-            }
+            .video-wrapper { width: 50vmin; height: 60vmin; }
         }
 
         .mini-card {
-            width: 95%; 
-            height: 100%; 
+            width: 95%; height: 100%; 
             background: rgba(0, 18, 66, 0.8);
             border: 1px solid var(--csk-yellow);
             border-radius: 6px;
@@ -337,7 +338,6 @@
         }
         
         .mini-card:hover { transform: scale(1.1); border-color: #fff; z-index: 10; background: var(--csk-blue); }
-
         .mini-card .player-img { width: 40%; height: 40%; margin-bottom: 5%; border: none; }
         .mini-card .player-role { font-size: 1vmin; margin: 0; }
         .mini-card .player-name { font-size: 1.2vmin; padding: 0; line-height: 1.1; text-align: center; }
@@ -419,17 +419,14 @@
 
         .trophy-year { font-weight: bold; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
 
-        /* --- ANIMATIONS --- */
         @keyframes floatGlow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes pulseText { from { transform: scale(1); } to { transform: scale(1.1); } }
         @keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
         @keyframes floatWhistle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-        
         @keyframes vibeSpin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
         @keyframes particleMove { from { background-position: 0 0, 40px 60px, 130px 270px; } to { background-position: 550px 550px, 390px 410px, 380px 520px; } }
         @keyframes videoPulse { 0%, 100% { box-shadow: 0 0 30px var(--csk-yellow); } 50% { box-shadow: 0 0 80px var(--csk-yellow), 0 0 20px white; } }
         @keyframes slideLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        
         @keyframes titlePopIn { from { opacity: 0; transform: scale(2); } to { opacity: 1; transform: scale(1); } }
         @keyframes titleGlitch { 
             0% { text-shadow: 2px 0 var(--csk-blue), -2px 0 var(--csk-yellow); }
@@ -444,7 +441,19 @@
 </head>
 <body>
 
-    <!-- WRAPPER FOR AUTO-ROTATION -->
+    <!-- ROTATION LOCK SCREEN -->
+    <div id="orientation-lock">
+        <div class="rotate-icon"><i class="fas fa-mobile-alt"></i> <i class="fas fa-sync-alt"></i></div>
+        <div class="rotate-text">
+            PLEASE ROTATE YOUR DEVICE<br>
+            <span style="font-size: 0.8rem; opacity: 0.7;">For the best experience</span>
+        </div>
+        <button class="force-start-btn" id="force-start-btn">
+            FORCE START
+        </button>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
     <div id="app-wrapper">
         <canvas id="stadium-canvas"></canvas>
         <div id="smoke-overlay"></div>
@@ -461,9 +470,7 @@
         <!-- STAGE 2: ALL CARDS GRID -->
         <div id="cards-stage">
             <h2 class="section-title">POWERFULL PLAYING XII</h2>
-            <div class="cards-grid" id="grid-container">
-                <!-- JS will inject cards here -->
-            </div>
+            <div class="cards-grid" id="grid-container"></div>
         </div>
 
         <!-- STAGE 3: WHISTLE INTERACTION -->
@@ -483,17 +490,12 @@
             <div class="comeback-title">COMEBACK CSK</div>
 
             <div class="video-layout-row">
-                <!-- Left Side: Grid Layout -->
                 <div class="side-panel" id="side-left"></div>
-
-                <!-- Center: Bigger Video -->
                 <div class="video-wrapper">
                     <video id="main-video" playsinline onended="restartAll()">
                         <source src="video.mp4" type="video/mp4">
                     </video>
                 </div>
-
-                <!-- Right Side: Grid Layout -->
                 <div class="side-panel" id="side-right"></div>
             </div>
 
@@ -506,7 +508,6 @@
                     <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2021</span></div>
                     <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2023</span></div>
                     <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2024</span></div>
-                    <!-- Duplicate -->
                     <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2010</span></div>
                     <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2011</span></div>
                     <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2018</span></div>
@@ -586,17 +587,22 @@
         // --- BACKGROUND ANIMATION (Canvas) ---
         const canvas = document.getElementById('stadium-canvas');
         const ctx = canvas.getContext('2d');
-        // Use the wrapper for dimensions to support rotation
         const wrapper = document.getElementById('app-wrapper');
         let width, height, spectators = [], confetti = [], time = 0;
 
         function resize() {
-            // Get dimensions from the wrapper, not window, to handle auto-rotation
+            // If wrapper is hidden (in portrait mode), don't resize canvas
+            if (wrapper.clientWidth === 0 || wrapper.clientHeight === 0) return;
+            
             width = canvas.width = wrapper.clientWidth;
             height = canvas.height = wrapper.clientHeight;
             initSpectators();
         }
-        window.addEventListener('resize', resize);
+        
+        window.addEventListener('resize', () => {
+            // Small delay to let CSS transitions finish
+            setTimeout(resize, 300);
+        });
 
         class Spectator {
             constructor(angle, row) {
@@ -633,11 +639,9 @@
 
         function initSpectators() {
             spectators = [];
-            // Reduce number of spectators for mobile performance if needed
             const isMobile = width < 800;
             const rows = isMobile ? 10 : 20;
             const items = isMobile ? 40 : 60;
-
             for (let r = 0; r < rows; r++) {
                 for (let i = 0; i < items; i++) {
                     spectators.push(new Spectator((Math.PI * (i/items)) + Math.random()*0.05, r));
@@ -646,6 +650,10 @@
         }
 
         function animate() {
+            if (wrapper.clientWidth === 0) {
+                requestAnimationFrame(animate);
+                return;
+            }
             try {
                 ctx.clearRect(0, 0, width, height);
                 ctx.fillStyle = '#000000';
@@ -656,8 +664,6 @@
                 confetti.forEach(c => { c.update(); c.draw(); });
                 requestAnimationFrame(animate);
             } catch (e) {
-                // Prevent crash in "Desktop Mode" on mobile
-                console.log("Animation frame skipped", e);
                 requestAnimationFrame(animate);
             }
         }
@@ -668,7 +674,6 @@
             const grid = document.getElementById('grid-container');
             grid.innerHTML = ''; 
             let allPlayers = [...players, ...impactPlayers];
-            
             allPlayers.forEach((p, index) => {
                 const div = document.createElement('div');
                 const isImpact = index >= players.length;
@@ -686,15 +691,9 @@
         function renderSideCards() {
             const leftContainer = document.getElementById('side-left');
             const rightContainer = document.getElementById('side-right');
-            leftContainer.innerHTML = '';
-            rightContainer.innerHTML = '';
-
+            leftContainer.innerHTML = ''; rightContainer.innerHTML = '';
             const allPlayers = [...players, ...impactPlayers];
             const midPoint = Math.ceil(allPlayers.length / 2);
-
-            const leftPlayers = allPlayers.slice(0, midPoint);
-            const rightPlayers = allPlayers.slice(midPoint);
-
             const createMiniCard = (p, index) => {
                 const div = document.createElement('div');
                 div.className = 'mini-card';
@@ -706,9 +705,8 @@
                 `;
                 return div;
             };
-
-            leftPlayers.forEach((p, i) => leftContainer.appendChild(createMiniCard(p, i)));
-            rightPlayers.forEach((p, i) => rightContainer.appendChild(createMiniCard(p, i)));
+            allPlayers.slice(0, midPoint).forEach((p, i) => leftContainer.appendChild(createMiniCard(p, i)));
+            allPlayers.slice(midPoint).forEach((p, i) => rightContainer.appendChild(createMiniCard(p, i)));
         }
 
         function runSequence() {
@@ -741,9 +739,7 @@
             setTimeout(() => {
                 whistle.style.display = 'none';
                 cards.style.display = 'none';
-
                 renderSideCards();
-
                 videoStage.style.display = 'flex';
                 video.play().catch(e => console.log("Video play failed:", e));
             }, 500);
@@ -753,18 +749,69 @@
             location.reload();
         }
 
-        // --- INIT ---
+        // --- INIT & ORIENTATION LOGIC ---
+        
         window.onload = () => {
-            // Initial resize might need a slight delay for layout to settle in rotated view
+            initCards();
+            document.getElementById('whistle-stage').addEventListener('click', playVideo);
+            
+            // Check initial orientation
+            handleOrientationChange();
+        };
+
+        // Listen for rotation
+        window.addEventListener('resize', handleOrientationChange);
+
+        function handleOrientationChange() {
+            const isPortrait = window.innerHeight > window.innerWidth;
+            const lockScreen = document.getElementById('orientation-lock');
+            const wrapper = document.getElementById('app-wrapper');
+
+            if (!isPortrait) {
+                // LANDSCAPE MODE
+                // Hide lock, show wrapper
+                lockScreen.style.display = 'none';
+                wrapper.style.display = 'block';
+                wrapper.classList.remove('force-landscape-mode');
+                
+                // Start animation if not already started
+                setTimeout(() => {
+                    resize();
+                    animate();
+                    runSequence(); // Start from scratch
+                }, 500);
+            } else {
+                // PORTRAIT MODE
+                // Show lock, hide wrapper
+                lockScreen.style.display = 'flex';
+                wrapper.style.display = 'none';
+                wrapper.classList.remove('force-landscape-mode');
+                
+                // Optional: Reload to stop sounds/videos cleanly
+                // location.reload(); 
+            }
+        }
+
+        // "Force Start" Button Logic (For locked rotation phones)
+        document.getElementById('force-start-btn').addEventListener('click', () => {
+            const lockScreen = document.getElementById('orientation-lock');
+            const wrapper = document.getElementById('app-wrapper');
+            
+            // Hide lock screen
+            lockScreen.style.display = 'none';
+            
+            // Show wrapper and add rotation class
+            wrapper.style.display = 'block';
+            wrapper.classList.add('force-landscape-mode');
+            
+            // Important: Force resize after rotation is applied
             setTimeout(() => {
                 resize();
                 animate();
-            }, 100);
-            
-            initCards();
-            document.getElementById('whistle-stage').addEventListener('click', playVideo);
-            setTimeout(runSequence, 4000);
-        };
+                runSequence();
+            }, 600); // Wait for CSS transition
+        });
+
     </script>
 </body>
 </html>
