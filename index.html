@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSK | Playing XI</title>
+    <!-- IMPORTANT: This ensures mobile browsers respect the scaling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CSK | Playing XI - Auto Landscape</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -17,13 +18,39 @@
         body {
             background-color: var(--stadium-dark);
             color: white;
-            overflow: hidden;
+            overflow: hidden; /* Prevents scrollbars during rotation */
+            width: 100vw;
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             font-family: 'Arial Black', sans-serif;
             cursor: default;
+        }
+
+        /* --- AUTO LANDSCAPE WRAPPER --- */
+        /* This wrapper handles the automatic rotation for mobile portrait mode */
+        #app-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            transform-origin: top left;
+            transition: transform 0.3s ease;
+        }
+
+        /* If the device is in Portrait (Vertical), rotate the content 90deg */
+        @media screen and (orientation: portrait) {
+            #app-wrapper {
+                position: absolute;
+                top: 0;
+                left: 100vw; /* Move to the right edge because we rotate */
+                width: 100vh; /* Width becomes screen height */
+                height: 100vw; /* Height becomes screen width */
+                transform: rotate(-90deg); /* Rotate counter-clockwise */
+                transform-origin: top left;
+                background-color: var(--stadium-dark);
+                z-index: 1000;
+            }
+            /* Hide body background to prevent bleeding */
+            body { background: black; }
         }
 
         /* --- BACKGROUND --- */
@@ -68,11 +95,14 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
+            height: 100%;
+            justify-content: center;
         }
 
         .logo-container {
-            width: 300px;
-            height: 300px;
+            width: 35vmin; /* Responsive size based on viewport */
+            height: 35vmin;
             background: rgba(0, 18, 66, 0.9);
             border: 5px solid var(--csk-yellow);
             border-radius: 50%;
@@ -80,7 +110,7 @@
             justify-content: center;
             align-items: center;
             box-shadow: 0 0 100px rgba(255, 203, 5, 0.2);
-            margin-bottom: 20px;
+            margin-bottom: 4vmin;
             animation: floatGlow 4s ease-in-out infinite;
             overflow: hidden; 
         }
@@ -89,11 +119,25 @@
             width: 100%; 
             height: 100%; 
             object-fit: contain; 
-            padding: 30px; 
+            padding: 5vmin; 
         }
         
-        h1 { font-size: 3.5rem; color: white; text-transform: uppercase; animation: pulseText 1.5s infinite alternate; text-shadow: 2px 2px 0 #000; }
-        .tagline { font-size: 1.5rem; color: var(--csk-yellow); letter-spacing: 5px; font-weight: bold; text-shadow: 1px 1px 0 #000; }
+        h1 { 
+            font-size: 6vmin; 
+            color: white; 
+            text-transform: uppercase; 
+            animation: pulseText 1.5s infinite alternate; 
+            text-shadow: 2px 2px 0 #000; 
+            line-height: 1.1;
+        }
+        .tagline { 
+            font-size: 3vmin; 
+            color: var(--csk-yellow); 
+            letter-spacing: 5px; 
+            font-weight: bold; 
+            text-shadow: 1px 1px 0 #000; 
+            margin-top: 10px;
+        }
 
         /* --- STAGE 2: CARDS GRID --- */
         #cards-stage {
@@ -106,16 +150,15 @@
             align-items: center;
             padding: 20px;
             box-sizing: border-box;
-            flex-direction: column; /* Allows title to sit above grid */
+            flex-direction: column;
         }
 
-        /* ADDED STYLE FOR THE NEW TITLE */
         .section-title {
             color: var(--csk-yellow);
-            font-size: 2.5rem;
+            font-size: 4vmin; /* Responsive font */
             text-transform: uppercase;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 4vmin;
             text-shadow: 0 0 10px rgba(255, 203, 5, 0.8), 2px 2px 0px #000;
             animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             letter-spacing: 2px;
@@ -125,13 +168,14 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
-            max-width: 1200px;
+            gap: 2vmin; /* Responsive gap */
+            max-width: 90%;
         }
 
         .player-card {
-            width: 140px;
-            height: 200px;
+            /* Responsive sizing for cards */
+            width: 16vmin; 
+            height: 24vmin;
             background: linear-gradient(135deg, var(--csk-blue), #000);
             border: 2px solid var(--csk-yellow);
             border-radius: 10px;
@@ -147,9 +191,9 @@
 
         .player-card.impact { border-color: #fff; box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
 
-        .player-img { width: 80px; height: 100px; object-fit: cover; margin-bottom: 8px; border-bottom: 1px solid var(--csk-yellow); }
-        .player-role { font-size: 0.6rem; color: var(--csk-yellow); text-transform: uppercase; margin-bottom: 2px; }
-        .player-name { font-size: 0.8rem; text-align: center; color: white; text-transform: uppercase; line-height: 1; padding: 0 5px; }
+        .player-img { width: 50%; height: 50%; object-fit: cover; margin-bottom: 5%; border-bottom: 1px solid var(--csk-yellow); }
+        .player-role { font-size: 1.5vmin; color: var(--csk-yellow); text-transform: uppercase; margin-bottom: 2px; }
+        .player-name { font-size: 2vmin; text-align: center; color: white; text-transform: uppercase; line-height: 1.1; padding: 0 5px; }
 
         /* --- STAGE 3: WHISTLE --- */
         #whistle-stage {
@@ -167,44 +211,44 @@
         #whistle-stage:active { transform: translate(-50%, -50%) scale(0.95); }
 
         .whistle-container {
-            width: 120px;
-            height: 120px;
+            width: 15vmin;
+            height: 15vmin;
             position: relative;
             transform-style: preserve-3d;
             animation: floatWhistle 2s ease-in-out infinite;
         }
 
         .whistle-body {
-            width: 80px; height: 35px;
+            width: 60%; height: 35%;
             background: linear-gradient(to bottom, #FFD700, #FFCB05, #B8860B);
             border-radius: 20px;
             position: absolute;
-            top: 40px; left: 20px;
+            top: 40%; left: 20%;
             box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.5);
             z-index: 2;
         }
         .whistle-body::before {
             content: ''; position: absolute;
-            width: 30px; height: 20px;
+            width: 40%; height: 60%;
             background: #FFCB05;
-            left: -25px; top: 8px;
+            left: -30%; top: 20%;
             border-radius: 5px 0 0 5px;
             box-shadow: inset -5px 0 5px rgba(0,0,0,0.2);
         }
         .whistle-ring {
-            width: 30px; height: 30px;
+            width: 40%; height: 40%;
             border: 6px solid #FFCB05;
             border-radius: 50%;
             position: absolute;
-            right: -10px; top: 50%;
+            right: -10%; top: 50%;
             transform: translateY(-50%) rotateX(60deg);
             z-index: 1;
             box-shadow: 0 5px 5px rgba(0,0,0,0.5);
         }
 
-        .click-hint { margin-top: 20px; color: white; font-size: 1.2rem; animation: pulseText 1s infinite; }
+        .click-hint { margin-top: 20px; color: white; font-size: 2.5vmin; animation: pulseText 1s infinite; }
 
-        /* --- STAGE 4: VIDEO (UPDATED LAYOUT) --- */
+        /* --- STAGE 4: VIDEO --- */
         #video-stage {
             position: absolute;
             top: 0; left: 0;
@@ -215,48 +259,69 @@
             align-items: center;
             background: black;
             overflow: hidden;
-            padding-top: 20px;
+            padding-top: 2vh;
         }
 
-        /* 1. COMEBACK TITLE */
         .comeback-title {
-            font-size: 2.5rem;
+            font-size: 5vmin;
             color: var(--csk-yellow);
             z-index: 50;
-            margin-bottom: 15px;
+            margin-bottom: 2vh;
             text-shadow: 0 0 10px var(--csk-blue), 0 0 20px var(--csk-yellow);
             letter-spacing: 5px;
             animation: titlePopIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, titleGlitch 2s infinite;
         }
 
-        /* 2. LAYOUT ROW */
         .video-layout-row {
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
             flex: 1; 
-            gap: 20px;
-            padding: 0 20px;
+            gap: 2vmin;
+            padding: 0 2vmin;
             z-index: 20;
         }
 
-        /* UPDATED: Side Panels with 2-Column Grid */
+        /* Side Panels: Hide on very small screens, show on larger mobiles/tablets */
         .side-panel {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* 2 Cards per line */
-            grid-template-rows: repeat(auto-fill, 100px); /* Fixed height rows */
-            gap: 8px; /* Smaller gap for grid */
+            display: none; /* Default hidden for safety on small phones */
+            grid-template-columns: 1fr 1fr; 
+            grid-template-rows: repeat(auto-fill, 10vmin); 
+            gap: 1vmin; 
             height: 100%;
-            width: 200px; /* Fixed width to save space for big video */
-            align-content: center; /* Center grid vertically */
+            width: 15vw; 
+            align-content: center; 
             justify-items: center;
         }
 
-        /* UPDATED: Smaller Mini Cards for Grid */
+        /* Show side panels only if width is enough (e.g., Tablets, Desktops, or Large Landscape Phones) */
+        @media (min-width: 800px) {
+            .side-panel { display: grid; }
+            .video-wrapper { width: 50vmin; height: 60vmin; }
+        }
+
+        /* If in forced landscape (CSS rotates), adjust video to be huge */
+        @media screen and (orientation: portrait) {
+            .video-wrapper {
+                width: 70vh !important; /* Uses height of portrait screen as width */
+                height: 55vh !important;
+            }
+            .side-panel { display: none !important; } /* Hide side panels in forced landscape to save space */
+            .comeback-title { font-size: 6vh; }
+        }
+
+        /* Normal desktop/laptop video sizing */
+        @media screen and (orientation: landscape) {
+            .video-wrapper {
+                width: 50vmin; 
+                height: 60vmin; 
+            }
+        }
+
         .mini-card {
-            width: 95%; /* Slight gap between grid items */
-            height: 100%; /* Fill grid cell */
+            width: 95%; 
+            height: 100%; 
             background: rgba(0, 18, 66, 0.8);
             border: 1px solid var(--csk-yellow);
             border-radius: 6px;
@@ -273,14 +338,11 @@
         
         .mini-card:hover { transform: scale(1.1); border-color: #fff; z-index: 10; background: var(--csk-blue); }
 
-        .mini-card .player-img { width: 35px; height: 40px; margin-bottom: 2px; border: none; }
-        .mini-card .player-role { font-size: 0.4rem; margin: 0; }
-        .mini-card .player-name { font-size: 0.5rem; padding: 0; line-height: 1.1; text-align: center; }
+        .mini-card .player-img { width: 40%; height: 40%; margin-bottom: 5%; border: none; }
+        .mini-card .player-role { font-size: 1vmin; margin: 0; }
+        .mini-card .player-name { font-size: 1.2vmin; padding: 0; line-height: 1.1; text-align: center; }
 
-        /* UPDATED: Bigger Video Wrapper */
         .video-wrapper {
-            width: 60vmin;  /* Increased size */
-            height: 65vmin; /* Increased size */
             border: 4px solid var(--csk-yellow);
             box-shadow: 0 0 50px var(--csk-yellow);
             overflow: hidden;
@@ -292,7 +354,6 @@
 
         video { width: 100%; height: 100%; object-fit: cover; }
 
-        /* 3. Vibing Background Effect */
         .vibe-bg {
             position: absolute;
             top: 50%; left: 50%;
@@ -318,12 +379,11 @@
             animation: particleMove 60s linear infinite;
         }
 
-        /* 4. Trophy Ticker */
         .trophy-bar-container {
             position: absolute;
             bottom: 0;
             width: 100%;
-            height: 60px;
+            height: 8vh;
             background: rgba(0, 18, 66, 0.9);
             border-top: 2px solid var(--csk-yellow);
             z-index: 50;
@@ -337,7 +397,7 @@
         .trophy-track {
             display: flex;
             align-items: center;
-            gap: 80px;
+            gap: 5vw;
             animation: slideLeft 20s linear infinite;
             padding-left: 50px;
         }
@@ -346,14 +406,14 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 1.2rem;
+            font-size: 2vmin;
             color: white;
             white-space: nowrap;
         }
 
         .trophy-icon {
             color: var(--csk-yellow);
-            font-size: 1.5rem;
+            font-size: 2.5vmin;
             filter: drop-shadow(0 0 5px var(--csk-yellow));
         }
 
@@ -380,89 +440,80 @@
         }
         @keyframes slideInSide { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* Mobile Adjustments */
-        @media (max-width: 900px) {
-            .side-panel { display: none; } /* Hide side cards on mobile */
-            .video-wrapper { width: 90vw; height: 50vh; }
-            .comeback-title { font-size: 1.5rem; margin-bottom: 50px; } /* Move title up */
-        }
     </style>
 </head>
 <body>
 
-    <canvas id="stadium-canvas"></canvas>
-    <div id="smoke-overlay"></div>
+    <!-- WRAPPER FOR AUTO-ROTATION -->
+    <div id="app-wrapper">
+        <canvas id="stadium-canvas"></canvas>
+        <div id="smoke-overlay"></div>
 
-    <!-- STAGE 1: LOGO -->
-    <div class="center-stage" id="logo-stage">
-        <div class="logo-container">
-            <img src="csk_custom.png" alt="CSK Logo" onerror="this.style.display='none'">
-        </div>
-        <h1>CHENNAI<br>SUPER KINGS</h1>
-        <div class="tagline">WHISTLE PODU!</div>
-    </div>
-
-    <!-- STAGE 2: ALL CARDS GRID -->
-    <div id="cards-stage">
-        <!-- ADDED TITLE HERE -->
-        <h2 class="section-title">POWERFULL PLAYING XII</h2>
-        
-        <div class="cards-grid" id="grid-container">
-            <!-- JS will inject cards here -->
-        </div>
-    </div>
-
-    <!-- STAGE 3: WHISTLE INTERACTION -->
-    <div id="whistle-stage">
-        <div class="whistle-container">
-            <div class="whistle-body"></div>
-            <div class="whistle-ring"></div>
-        </div>
-        <div class="click-hint">CLICK TO START</div>
-    </div>
-
-    <!-- STAGE 4: VIDEO (NEW LAYOUT) -->
-    <div id="video-stage">
-        <div class="vibe-bg"></div>
-        <div class="vibe-particles"></div>
-
-        <div class="comeback-title">COMEBACK CSK</div>
-
-        <div class="video-layout-row">
-            <!-- Left Side: Grid Layout -->
-            <div class="side-panel" id="side-left">
-                <!-- JS Injected Mini Cards -->
+        <!-- STAGE 1: LOGO -->
+        <div class="center-stage" id="logo-stage">
+            <div class="logo-container">
+                <img src="csk_custom.png" alt="CSK Logo" onerror="this.style.display='none'">
             </div>
+            <h1>CHENNAI<br>SUPER KINGS</h1>
+            <div class="tagline">WHISTLE PODU!</div>
+        </div>
 
-            <!-- Center: Bigger Video -->
-            <div class="video-wrapper">
-                <video id="main-video" playsinline onended="restartAll()">
-                    <source src="video.mp4" type="video/mp4">
-                </video>
-            </div>
-
-            <!-- Right Side: Grid Layout -->
-            <div class="side-panel" id="side-right">
-                <!-- JS Injected Mini Cards -->
+        <!-- STAGE 2: ALL CARDS GRID -->
+        <div id="cards-stage">
+            <h2 class="section-title">POWERFULL PLAYING XII</h2>
+            <div class="cards-grid" id="grid-container">
+                <!-- JS will inject cards here -->
             </div>
         </div>
 
-        <!-- Trophy Ticker -->
-        <div class="trophy-bar-container">
-            <div class="trophy-track">
-                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2010</span></div>
-                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2011</span></div>
-                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2018</span></div>
-                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2021</span></div>
-                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2023</span></div>
-                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2024</span></div>
-                <!-- Duplicate -->
-                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2010</span></div>
-                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2011</span></div>
-                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2018</span></div>
-                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2021</span></div>
-                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2023</span></div>
-                <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2024</span></div>
+        <!-- STAGE 3: WHISTLE INTERACTION -->
+        <div id="whistle-stage">
+            <div class="whistle-container">
+                <div class="whistle-body"></div>
+                <div class="whistle-ring"></div>
+            </div>
+            <div class="click-hint">CLICK TO START</div>
+        </div>
+
+        <!-- STAGE 4: VIDEO -->
+        <div id="video-stage">
+            <div class="vibe-bg"></div>
+            <div class="vibe-particles"></div>
+
+            <div class="comeback-title">COMEBACK CSK</div>
+
+            <div class="video-layout-row">
+                <!-- Left Side: Grid Layout -->
+                <div class="side-panel" id="side-left"></div>
+
+                <!-- Center: Bigger Video -->
+                <div class="video-wrapper">
+                    <video id="main-video" playsinline onended="restartAll()">
+                        <source src="video.mp4" type="video/mp4">
+                    </video>
+                </div>
+
+                <!-- Right Side: Grid Layout -->
+                <div class="side-panel" id="side-right"></div>
+            </div>
+
+            <!-- Trophy Ticker -->
+            <div class="trophy-bar-container">
+                <div class="trophy-track">
+                    <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2010</span></div>
+                    <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2011</span></div>
+                    <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2018</span></div>
+                    <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2021</span></div>
+                    <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2023</span></div>
+                    <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2024</span></div>
+                    <!-- Duplicate -->
+                    <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2010</span></div>
+                    <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2011</span></div>
+                    <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2018</span></div>
+                    <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2021</span></div>
+                    <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2023</span></div>
+                    <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2024</span></div>
+                </div>
             </div>
         </div>
     </div>
@@ -535,11 +586,14 @@
         // --- BACKGROUND ANIMATION (Canvas) ---
         const canvas = document.getElementById('stadium-canvas');
         const ctx = canvas.getContext('2d');
+        // Use the wrapper for dimensions to support rotation
+        const wrapper = document.getElementById('app-wrapper');
         let width, height, spectators = [], confetti = [], time = 0;
 
         function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+            // Get dimensions from the wrapper, not window, to handle auto-rotation
+            width = canvas.width = wrapper.clientWidth;
+            height = canvas.height = wrapper.clientHeight;
             initSpectators();
         }
         window.addEventListener('resize', resize);
@@ -579,22 +633,33 @@
 
         function initSpectators() {
             spectators = [];
-            for (let r = 0; r < 20; r++) {
-                for (let i = 0; i < 60; i++) {
-                    spectators.push(new Spectator((Math.PI * (i/60)) + Math.random()*0.05, r));
+            // Reduce number of spectators for mobile performance if needed
+            const isMobile = width < 800;
+            const rows = isMobile ? 10 : 20;
+            const items = isMobile ? 40 : 60;
+
+            for (let r = 0; r < rows; r++) {
+                for (let i = 0; i < items; i++) {
+                    spectators.push(new Spectator((Math.PI * (i/items)) + Math.random()*0.05, r));
                 }
             }
         }
 
         function animate() {
-            ctx.clearRect(0, 0, width, height);
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(0, 0, width, height);
-            time++;
-            spectators.forEach(s => { s.update(time); s.draw(); });
-            if (confetti.length < 100) confetti.push(new Confetti());
-            confetti.forEach(c => { c.update(); c.draw(); });
-            requestAnimationFrame(animate);
+            try {
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(0, 0, width, height);
+                time++;
+                spectators.forEach(s => { s.update(time); s.draw(); });
+                if (confetti.length < 100) confetti.push(new Confetti());
+                confetti.forEach(c => { c.update(); c.draw(); });
+                requestAnimationFrame(animate);
+            } catch (e) {
+                // Prevent crash in "Desktop Mode" on mobile
+                console.log("Animation frame skipped", e);
+                requestAnimationFrame(animate);
+            }
         }
 
         // --- LOGIC ---
@@ -618,7 +683,6 @@
             });
         }
 
-        // Function to render cards on sides
         function renderSideCards() {
             const leftContainer = document.getElementById('side-left');
             const rightContainer = document.getElementById('side-right');
@@ -691,8 +755,12 @@
 
         // --- INIT ---
         window.onload = () => {
-            resize();
-            animate();
+            // Initial resize might need a slight delay for layout to settle in rotated view
+            setTimeout(() => {
+                resize();
+                animate();
+            }, 100);
+            
             initCards();
             document.getElementById('whistle-stage').addEventListener('click', playVideo);
             setTimeout(runSequence, 4000);
