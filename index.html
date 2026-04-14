@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CSK | Playing XI - Final Fix</title>
+    <title>CSK | Playing XI - Fixed Cards</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -67,6 +67,7 @@
         }
         .force-start-btn:active { transform: scale(0.95); }
 
+        /* SHOW LOCK SCREEN ON PORTRAIT, HIDE ON LANDSCAPE */
         @media screen and (orientation: portrait) {
             #orientation-lock { display: flex; }
             #app-wrapper { display: none; }
@@ -87,6 +88,7 @@
             transition: transform 0.5s ease;
         }
 
+        /* This class is added via JS when user clicks "Force Start" in Portrait */
         .force-landscape-mode {
             position: fixed;
             top: 0; left: 100vw;
@@ -288,79 +290,60 @@
             align-items: center;
             width: 100%;
             flex: 1; 
-            gap: 20px; /* Fixed gap for PC to prevent overlap */
-            padding: 0 20px;
+            gap: 2vmin;
+            padding: 0 2vmin;
             z-index: 20;
         }
 
         .side-panel {
-            display: none; 
+            display: none; /* DEFAULT HIDDEN */
             grid-template-columns: 1fr 1fr; 
-            /* FIX: Allow grid to auto-fill rows based on content height */
-            grid-template-rows: repeat(auto-fill, 100px); 
-            gap: 10px; 
+            grid-template-rows: repeat(auto-fill, 10vmin); 
+            gap: 1vmin; 
             height: 100%;
-            /* FIX: Use flex properties to prevent cutting */
-            flex: 0 0 auto;
-            width: 20%; 
-            min-width: 180px; /* Minimum width to prevent squishing text */
-            max-width: 250px; /* Maximum width so they don't get too big */
+            width: 15vw; 
             align-content: center; 
             justify-items: center;
-            overflow-y: auto; /* Allow scroll if screen is very short */
         }
 
-        /* PC View Logic */
+        /* FIX 1: PC VIEW (Very Wide Screens) */
         @media (min-width: 900px) {
-            .side-panel { 
-                display: grid !important; 
-                width: 220px; /* Fixed width for better consistency */
-            }
-            .video-wrapper { 
-                width: 50vmin; 
-                height: 60vmin;
-                flex-grow: 1; /* Video fills remaining space */
-            }
+            .side-panel { display: grid; width: 15vw; }
+            .video-wrapper { width: 50vmin; height: 60vmin; }
         }
 
-        /* Mobile Landscape Logic (600px to 899px) */
-        @media screen and (orientation: landscape) and (min-width: 600px) and (max-width: 899px) {
-            .side-panel { 
-                display: grid !important; 
-                width: 18vw;
-                min-width: 140px;
-            }
-            .video-wrapper { width: 40vmin; height: 55vmin; }
+        /* FIX 2: MOBILE LANDSCAPE (Screens between 600px and 900px) */
+        /* This is what was missing. It allows cards to show on phones in landscape. */
+        @media screen and (orientation: landscape) and (min-width: 600px) {
+            .side-panel { display: grid !important; width: 20vw; } /* Wider panels for smaller screens */
+            .video-wrapper { width: 40vmin; height: 55vmin; } /* Smaller video to fit panels */
             .mini-card { width: 95%; height: 90%; }
         }
 
-        /* Force Start Mode */
+        /* FIX 3: Force Start Mode (Applied via JS) */
         .force-landscape-mode .side-panel {
             display: grid !important;
-            width: 18vw;
-            min-width: 140px;
+            width: 20vw;
         }
         .force-landscape-mode .video-wrapper {
             width: 40vmin !important;
             height: 55vmin !important;
         }
 
-        /* Portrait (Hidden mainly, but sizing just in case) */
         @media screen and (orientation: portrait) {
             .video-wrapper { width: 70vh !important; height: 55vh !important; }
             .side-panel { display: none !important; }
             .comeback-title { font-size: 6vh; }
         }
 
-        /* Very Small Landscape */
         @media screen and (orientation: landscape) and (max-width: 599px) {
+            /* Very small landscape devices (like old flip phones) - Hide panels */
             .side-panel { display: none !important; }
             .video-wrapper { width: 80vmin; height: 60vmin; }
         }
 
         .mini-card {
-            width: 100%; /* Fill grid cell */
-            height: 95%; 
+            width: 95%; height: 100%; 
             background: rgba(0, 18, 66, 0.8);
             border: 1px solid var(--csk-yellow);
             border-radius: 6px;
@@ -372,13 +355,13 @@
             transition: transform 0.3s;
             opacity: 0;
             animation: slideInSide 0.5s ease-out forwards;
-            padding: 5px;
+            padding: 2px;
         }
         
-        .mini-card:hover { transform: scale(1.05); border-color: #fff; z-index: 10; background: var(--csk-blue); }
-        .mini-card .player-img { width: 45%; height: 45%; margin-bottom: 5%; border: none; }
-        .mini-card .player-role { font-size: 0.8rem; margin: 0; } /* Fixed rem for readability */
-        .mini-card .player-name { font-size: 0.9rem; padding: 0; line-height: 1.2; text-align: center; font-weight: bold; }
+        .mini-card:hover { transform: scale(1.1); border-color: #fff; z-index: 10; background: var(--csk-blue); }
+        .mini-card .player-img { width: 40%; height: 40%; margin-bottom: 5%; border: none; }
+        .mini-card .player-role { font-size: 1vmin; margin: 0; }
+        .mini-card .player-name { font-size: 1.2vmin; padding: 0; line-height: 1.1; text-align: center; }
 
         .video-wrapper {
             border: 4px solid var(--csk-yellow);
@@ -457,55 +440,6 @@
 
         .trophy-year { font-weight: bold; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
 
-        /* --- END SCREEN (NEW) --- */
-        #end-screen {
-            display: none;
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 1000;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .end-title {
-            font-size: 4rem;
-            color: var(--csk-yellow);
-            text-transform: uppercase;
-            text-shadow: 0 0 20px var(--csk-yellow);
-            margin-bottom: 30px;
-        }
-
-        .end-btn {
-            background: transparent;
-            color: var(--csk-yellow);
-            border: 2px solid var(--csk-yellow);
-            padding: 15px 40px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            border-radius: 50px;
-            transition: all 0.3s;
-            margin: 10px;
-        }
-
-        .end-btn.primary {
-            background: var(--csk-yellow);
-            color: var(--csk-blue);
-        }
-
-        .end-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(255, 203, 5, 0.5);
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         @keyframes floatGlow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes pulseText { from { transform: scale(1); } to { transform: scale(1.1); } }
         @keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
@@ -579,7 +513,7 @@
             <div class="video-layout-row">
                 <div class="side-panel" id="side-left"></div>
                 <div class="video-wrapper">
-                    <video id="main-video" playsinline>
+                    <video id="main-video" playsinline onended="restartAll()">
                         <source src="video.mp4" type="video/mp4">
                     </video>
                 </div>
@@ -602,13 +536,6 @@
                     <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2023</span></div>
                     <div class="trophy-item"><i class="fas fa-trophy trophy-icon"></i> <span class="trophy-year">CHAMPIONS 2024</span></div>
                 </div>
-            </div>
-
-            <!-- END SCREEN (Hidden initially) -->
-            <div id="end-screen">
-                <div class="end-title">MATCH ENDED</div>
-                <button class="end-btn primary" id="restart-btn">START AGAIN</button>
-                <button class="end-btn" id="exit-btn">EXIT FULLSCREEN</button>
             </div>
         </div>
     </div>
@@ -685,13 +612,18 @@
         let width, height, spectators = [], confetti = [], time = 0;
 
         function resize() {
+            // If wrapper is hidden (in portrait mode), don't resize canvas
             if (wrapper.clientWidth === 0 || wrapper.clientHeight === 0) return;
+            
             width = canvas.width = wrapper.clientWidth;
             height = canvas.height = wrapper.clientHeight;
             initSpectators();
         }
         
-        window.addEventListener('resize', () => { setTimeout(resize, 300); });
+        window.addEventListener('resize', () => {
+            // Small delay to let CSS transitions finish
+            setTimeout(resize, 300);
+        });
 
         class Spectator {
             constructor(angle, row) {
@@ -739,7 +671,10 @@
         }
 
         function animate() {
-            if (wrapper.clientWidth === 0) { requestAnimationFrame(animate); return; }
+            if (wrapper.clientWidth === 0) {
+                requestAnimationFrame(animate);
+                return;
+            }
             try {
                 ctx.clearRect(0, 0, width, height);
                 ctx.fillStyle = '#000000';
@@ -749,7 +684,9 @@
                 if (confetti.length < 100) confetti.push(new Confetti());
                 confetti.forEach(c => { c.update(); c.draw(); });
                 requestAnimationFrame(animate);
-            } catch (e) { requestAnimationFrame(animate); }
+            } catch (e) {
+                requestAnimationFrame(animate);
+            }
         }
 
         // --- LOGIC ---
@@ -812,16 +749,6 @@
             }, 4000);
         }
 
-        function toggleFullScreen(enable) {
-            if (!document.fullscreenElement && enable) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Error attempting to enable full-screen mode: ${err.message}`);
-                });
-            } else if (document.fullscreenElement && !enable) {
-                document.exitFullscreen();
-            }
-        }
-
         function playVideo() {
             const whistle = document.getElementById('whistle-stage');
             const cards = document.getElementById('cards-stage');
@@ -829,9 +756,6 @@
             const video = document.getElementById('main-video');
 
             SoundFX.playWhistle();
-
-            // Auto Fullscreen Request (Works on Mobile & PC)
-            toggleFullScreen(true);
 
             setTimeout(() => {
                 whistle.style.display = 'none';
@@ -842,37 +766,21 @@
             }, 500);
         }
 
-        function handleVideoEnd() {
-            const endScreen = document.getElementById('end-screen');
-            // Show end screen instead of reloading
-            endScreen.style.display = 'flex';
+        function restartAll() {
+            location.reload();
         }
 
         // --- INIT & ORIENTATION LOGIC ---
         
         window.onload = () => {
             initCards();
-            
-            // Setup End Screen Buttons
-            document.getElementById('restart-btn').addEventListener('click', () => {
-                location.reload();
-            });
-            
-            document.getElementById('exit-btn').addEventListener('click', () => {
-                toggleFullScreen(false);
-                // Wait a bit for exit animation then reload or go to lock screen
-                setTimeout(() => {
-                    location.reload(); 
-                }, 500);
-            });
-
-            // Video Event Listener
-            document.getElementById('main-video').addEventListener('ended', handleVideoEnd);
-
             document.getElementById('whistle-stage').addEventListener('click', playVideo);
+            
+            // Check initial orientation
             handleOrientationChange();
         };
 
+        // Listen for rotation
         window.addEventListener('resize', handleOrientationChange);
 
         function handleOrientationChange() {
@@ -881,28 +789,48 @@
             const wrapper = document.getElementById('app-wrapper');
 
             if (!isPortrait) {
+                // LANDSCAPE MODE
+                // Hide lock, show wrapper
                 lockScreen.style.display = 'none';
                 wrapper.style.display = 'block';
                 wrapper.classList.remove('force-landscape-mode');
-                setTimeout(() => { resize(); animate(); runSequence(); }, 500);
+                
+                // Start animation if not already started
+                setTimeout(() => {
+                    resize();
+                    animate();
+                    runSequence(); // Start from scratch
+                }, 500);
             } else {
+                // PORTRAIT MODE
+                // Show lock, hide wrapper
                 lockScreen.style.display = 'flex';
                 wrapper.style.display = 'none';
                 wrapper.classList.remove('force-landscape-mode');
+                
+                // Optional: Reload to stop sounds/videos cleanly
+                // location.reload(); 
             }
         }
 
+        // "Force Start" Button Logic (For locked rotation phones)
         document.getElementById('force-start-btn').addEventListener('click', () => {
             const lockScreen = document.getElementById('orientation-lock');
             const wrapper = document.getElementById('app-wrapper');
+            
+            // Hide lock screen
             lockScreen.style.display = 'none';
+            
+            // Show wrapper and add rotation class
             wrapper.style.display = 'block';
             wrapper.classList.add('force-landscape-mode');
             
-            // Request fullscreen immediately on force start too
-            toggleFullScreen(true);
-
-            setTimeout(() => { resize(); animate(); runSequence(); }, 600);
+            // Important: Force resize after rotation is applied
+            setTimeout(() => {
+                resize();
+                animate();
+                runSequence();
+            }, 600); // Wait for CSS transition
         });
 
     </script>
