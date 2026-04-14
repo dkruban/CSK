@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CSK | Playing XI - Fixed Mobile</title>
+    <title>CSK | Playing XI - Fixed Cards</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -24,9 +24,9 @@
             cursor: default;
         }
 
-        /* --- ROTATION LOCK OVERLAY (THE FIX) --- */
+        /* --- ROTATION LOCK OVERLAY --- */
         #orientation-lock {
-            display: none; /* Hidden by default on Desktop/Landscape */
+            display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
@@ -70,7 +70,7 @@
         /* SHOW LOCK SCREEN ON PORTRAIT, HIDE ON LANDSCAPE */
         @media screen and (orientation: portrait) {
             #orientation-lock { display: flex; }
-            #app-wrapper { display: none; } /* Hide app to prevent black screen */
+            #app-wrapper { display: none; }
         }
 
         @media screen and (orientation: landscape) {
@@ -296,7 +296,7 @@
         }
 
         .side-panel {
-            display: none;
+            display: none; /* DEFAULT HIDDEN */
             grid-template-columns: 1fr 1fr; 
             grid-template-rows: repeat(auto-fill, 10vmin); 
             gap: 1vmin; 
@@ -306,9 +306,28 @@
             justify-items: center;
         }
 
-        @media (min-width: 800px) {
-            .side-panel { display: grid; }
+        /* FIX 1: PC VIEW (Very Wide Screens) */
+        @media (min-width: 900px) {
+            .side-panel { display: grid; width: 15vw; }
             .video-wrapper { width: 50vmin; height: 60vmin; }
+        }
+
+        /* FIX 2: MOBILE LANDSCAPE (Screens between 600px and 900px) */
+        /* This is what was missing. It allows cards to show on phones in landscape. */
+        @media screen and (orientation: landscape) and (min-width: 600px) {
+            .side-panel { display: grid !important; width: 20vw; } /* Wider panels for smaller screens */
+            .video-wrapper { width: 40vmin; height: 55vmin; } /* Smaller video to fit panels */
+            .mini-card { width: 95%; height: 90%; }
+        }
+
+        /* FIX 3: Force Start Mode (Applied via JS) */
+        .force-landscape-mode .side-panel {
+            display: grid !important;
+            width: 20vw;
+        }
+        .force-landscape-mode .video-wrapper {
+            width: 40vmin !important;
+            height: 55vmin !important;
         }
 
         @media screen and (orientation: portrait) {
@@ -317,8 +336,10 @@
             .comeback-title { font-size: 6vh; }
         }
 
-        @media screen and (orientation: landscape) {
-            .video-wrapper { width: 50vmin; height: 60vmin; }
+        @media screen and (orientation: landscape) and (max-width: 599px) {
+            /* Very small landscape devices (like old flip phones) - Hide panels */
+            .side-panel { display: none !important; }
+            .video-wrapper { width: 80vmin; height: 60vmin; }
         }
 
         .mini-card {
